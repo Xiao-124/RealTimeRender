@@ -100,7 +100,25 @@ struct LookUpTablesInfo
 	LookUpTablesInfo() { updateDerivedData(); }
 };
 
+struct CommonConstantBufferStructure
+{
+	glm::mat4 gViewProjMat;
+	glm::vec4 gColor;
+	glm::vec3 gSunIlluminance;
 
+	int gScatteringMaxPathDepth;
+	unsigned int gResolution[2];
+	float gFrameTimeSec;
+	float gTimeSec;
+
+	unsigned int gMouseLastDownPos[2];
+	unsigned int gFrameId;
+	unsigned int gTerrainResolution;
+	float gScreenshotCaptureActive;
+
+	float RayMarchMinMaxSPP[2];
+	float pad[2];
+};
 
 struct SkyAtmosphereConstantBufferStructure
 {

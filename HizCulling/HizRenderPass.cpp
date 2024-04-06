@@ -18,7 +18,7 @@ HizRenderPass::~HizRenderPass()
 {
 }
 
-static const float  globalscale = 0.1;
+static const float  globalscale = 0.5;
 inline float frand()
 {
     return float(rand() % RAND_MAX) / float(RAND_MAX);
@@ -50,21 +50,6 @@ void HizRenderPass::initV()
     ElayGraphics::ResourceManager::registerSharedData("TextureConfigDepth", TextureConfigDepth);
     m_FBO = genFBO({ TextureConfigColor, TextureConfigDepth });
 
-
-    //auto DownSampleDepth = std::make_shared<ElayGraphics::STexture>();
-    //DownSampleDepth->InternalFormat = GL_DEPTH_COMPONENT32F;
-    //DownSampleDepth->ExternalFormat = GL_DEPTH_COMPONENT;
-    //DownSampleDepth->DataType = GL_FLOAT;
-    //DownSampleDepth->Type4MinFilter = GL_LINEAR;
-    //DownSampleDepth->Type4MagFilter = GL_LINEAR;
-    ////TextureConfig4Depth->Width = TextureConfig4Depth->Height = m_ShadowmapResolution;
-    //DownSampleDepth->Type4WrapS = TerrianDepth->Type4WrapT = GL_CLAMP_TO_BORDER;
-    //DownSampleDepth->BorderColor = { 0,0,0,0 };
-    //DownSampleDepth->TextureAttachmentType = ElayGraphics::STexture::ETextureAttachmentType::DepthTexture;
-    //DownSampleDepth->isMipmap = true;
-    //genTexture(DownSampleDepth);
-    //genGenerateMipmap(DownSampleDepth);
-    //ElayGraphics::ResourceManager::registerSharedData("DownSampleDepth", DownSampleDepth);
 
     downSampleShader->activeShader();
     downSampleShader->setTextureUniformValue("depthTex", TextureConfigDepth);

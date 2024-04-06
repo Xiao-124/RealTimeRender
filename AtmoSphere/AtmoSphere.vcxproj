@@ -133,12 +133,12 @@
     <ClCompile Include="AtmosphereParameter.cpp" />
     <ClCompile Include="CustomGUI.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="RenderTransmittanceLutPass.cpp" />
+    <ClCompile Include="AtmoSpherePass.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AtmosphereParameter.h" />
     <ClInclude Include="CustomGUI.h" />
-    <ClInclude Include="RenderTransmittanceLutPass.h" />
+    <ClInclude Include="AtmoSpherePass.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NewMultiScatt_CS.glsl" />

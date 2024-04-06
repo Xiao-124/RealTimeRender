@@ -122,73 +122,6 @@ struct DensityProfile
 
 
 
-
-//struct AtmosphereParameters 
-//{
-//  //大气顶部的太阳辐照度。
-//  vec3 solar_irradiance;
-//  //太阳角
-//  float sun_angular_radius;
-//
-//  float bottom_radius;
-//  float top_radius;
-//
-//  //空气分子的密度分布
-//  DensityProfile rayleigh_density;
-//
-//
-//  vec3 rayleigh_scattering;
-//  
-//  //气溶胶的密度分布
-//  DensityProfile mie_density;
-//  vec3 mie_scattering;
-//
-//  //气溶胶在其密度所在高度的消光系数
-//  vec3 mie_extinction;
-//
-//  //Cornette-Shanks 相位函数的不对称参数
-//  float mie_phase_function_g;
-//
-//  //吸收光的空气分子的密度分布
-//  DensityProfile absorption_density;
-//  vec3 absorption_extinction;
-//
-//  // 地面的平均反照率。
-//  vec3 ground_albedo;
-//  
-//  //大气散射的最大太阳天顶角的余弦
-//  float mu_s_min;
-//};
-//
-//
-//
-//
-//AtmosphereParameters GetAtmosphereParameters()
-//{
-//	AtmosphereParameters Parameters;
-//	Parameters.AbsorptionExtinction = absorption_extinction;
-//
-//	// Traslation from Bruneton2017 parameterisation.
-//	Parameters.RayleighDensityExpScale = rayleigh_density[1].w;
-//	Parameters.MieDensityExpScale = mie_density[1].w;
-//	Parameters.AbsorptionDensity0LayerWidth = absorption_density[0].x;
-//	Parameters.AbsorptionDensity0ConstantTerm = absorption_density[1].x;
-//	Parameters.AbsorptionDensity0LinearTerm = absorption_density[0].w;
-//	Parameters.AbsorptionDensity1ConstantTerm = absorption_density[2].y;
-//	Parameters.AbsorptionDensity1LinearTerm = absorption_density[2].x;
-//
-//	Parameters.MiePhaseG = mie_phase_function_g;
-//	Parameters.RayleighScattering = rayleigh_scattering;
-//	Parameters.MieScattering = mie_scattering;
-//	Parameters.MieAbsorption = mie_absorption;
-//	Parameters.MieExtinction = mie_extinction;
-//	Parameters.GroundAlbedo = ground_albedo;
-//	Parameters.BottomRadius = bottom_radius;
-//	Parameters.TopRadius = top_radius;
-//	return Parameters;
-//}
-
-
 struct AtmosphereParameters
 {
 	// Radius of the planet (center to ground)
@@ -697,8 +630,7 @@ void main()
 	const float SphereSolidAngle = 4.0 * PI;
 	const float IsotropicPhase = 1.0 / SphereSolidAngle;
 
-	//memoryBarrierShared();
-	groupMemoryBarrier();
+
 	// Reference. Since there are many sample, it requires MULTI_SCATTERING_POWER_SERIE to be true for accuracy and to avoid divergences (see declaration for explanations)
 #define SQRTSAMPLECOUNT 8
 	const float sqrtSample = float(SQRTSAMPLECOUNT);
@@ -719,72 +651,116 @@ void main()
 		WorldDir.z = cosPhi;
 		SingleScatteringResult result = IntegrateScatteredLuminance(pixPos, WorldPos, WorldDir, sunDir, Atmosphere, ground, SampleCountIni, DepthBufferValue, VariableSampleCount, MieRayPhase);
 
-		groupMemoryBarrier();
+		barrier();
+		memoryBarrierShared();
 		MultiScatAs1SharedMem[ThreadId.z] = result.MultiScatAs1 * SphereSolidAngle / (sqrtSample * sqrtSample);
+		barrier();
+		memoryBarrierShared();
 		LSharedMem[ThreadId.z] = result.L * SphereSolidAngle / (sqrtSample * sqrtSample);
-		groupMemoryBarrier();
+		barrier();
+		memoryBarrierShared();
 	}
 #undef SQRTSAMPLECOUNT
 
-	//memoryBarrierShared();
-	groupMemoryBarrier();
+	//barrier();
+	barrier();
+	memoryBarrierShared();
 	// 64 to 32
 	if (ThreadId.z < 32)
 	{
+		barrier();
 		MultiScatAs1SharedMem[ThreadId.z] += MultiScatAs1SharedMem[ThreadId.z + 32];
+		barrier();
+		memoryBarrierShared();
 		LSharedMem[ThreadId.z] += LSharedMem[ThreadId.z + 32];
+		barrier();
+		memoryBarrierShared();
 	}
-	//memoryBarrierShared();
-	groupMemoryBarrier();
-
+	//barrier();
+	barrier();
+	memoryBarrierShared();
 	// 32 to 16
 	if (ThreadId.z < 16)
 	{
+		barrier();
 		MultiScatAs1SharedMem[ThreadId.z] += MultiScatAs1SharedMem[ThreadId.z + 16];
+		barrier();
+		memoryBarrierShared();
 		LSharedMem[ThreadId.z] += LSharedMem[ThreadId.z + 16];
+		barrier();
+		memoryBarrierShared();
 	}
-	//memoryBarrierShared();
-	groupMemoryBarrier();
-
+	//barrier();
+	barrier();
+	memoryBarrierShared();
 	// 16 to 8 (16 is thread group min hardware size with intel, no sync required from there)
 	if (ThreadId.z < 8)
 	{
+		barrier();
+		memoryBarrierShared();
 		MultiScatAs1SharedMem[ThreadId.z] += MultiScatAs1SharedMem[ThreadId.z + 8];
+		barrier();
+		memoryBarrierShared();
 		LSharedMem[ThreadId.z] += LSharedMem[ThreadId.z + 8];
+		barrier();
+		memoryBarrierShared();
 	}
-	//memoryBarrierShared();
-	groupMemoryBarrier();
-
+	//barrier();
+	barrier();
+	memoryBarrierShared();
 	if (ThreadId.z < 4)
 	{
+		barrier();
+		memoryBarrierShared();
 		MultiScatAs1SharedMem[ThreadId.z] += MultiScatAs1SharedMem[ThreadId.z + 4];
+		barrier();
+		memoryBarrierShared();
 		LSharedMem[ThreadId.z] += LSharedMem[ThreadId.z + 4];
+		barrier();
+		memoryBarrierShared();
 	}
-	//memoryBarrierShared();
-	groupMemoryBarrier();
-
+	//barrier();
+	barrier();
+	memoryBarrierShared();
 	if (ThreadId.z < 2)
 	{
+		barrier();
+		memoryBarrierShared();
 		MultiScatAs1SharedMem[ThreadId.z] += MultiScatAs1SharedMem[ThreadId.z + 2];
+		barrier();
+		memoryBarrierShared();
 		LSharedMem[ThreadId.z] += LSharedMem[ThreadId.z + 2];
+		barrier();
+		memoryBarrierShared();
 	}
-	//memoryBarrierShared();
-	groupMemoryBarrier();
-
+	//barrier();
+	barrier();
+	memoryBarrierShared();
 	if (ThreadId.z < 1)
 	{
+		barrier();
+		memoryBarrierShared();
 		MultiScatAs1SharedMem[ThreadId.z] += MultiScatAs1SharedMem[ThreadId.z + 1];
+		barrier();
+		memoryBarrierShared();
 		LSharedMem[ThreadId.z] += LSharedMem[ThreadId.z + 1];
+		barrier();
+		memoryBarrierShared();
 	}
-	//memoryBarrierShared();
-	groupMemoryBarrier();
-
+	//barrier();
+	barrier();
+	memoryBarrierShared();
 	if (ThreadId.z > 0)
 		return;
 
+	barrier();
+	memoryBarrierShared();
 	vec3 MultiScatAs1			= MultiScatAs1SharedMem[0] * IsotropicPhase;	// Equation 7 f_ms
+	barrier();
+	memoryBarrierShared();
 	vec3 InScatteredLuminance	= LSharedMem[0] * IsotropicPhase;				// Equation 5 L_2ndOrder
-
+	barrier();
+	memoryBarrierShared();
 	// MultiScatAs1 represents the amount of luminance scattered as if the integral of scattered luminance over the sphere would be 1.
 	//  - 1st order of scattering: one can ray-march a straight path as usual over the sphere. That is InScatteredLuminance.
 	//  - 2nd order of scattering: the inscattered luminance is InScatteredLuminance at each of samples of fist order integration. Assuming a uniform phase function that is represented by MultiScatAs1,
@@ -799,7 +775,10 @@ void main()
 	const vec3 SumOfAllMultiScatteringEventsContribution = 1.0f / (1.0 - r);
 	vec3 L = InScatteredLuminance * SumOfAllMultiScatteringEventsContribution;// Equation 10 Psi_ms
 #endif
-
+	barrier();
+	memoryBarrierShared();
 	ivec2 FragPos = ivec2(gl_GlobalInvocationID.xy);
+	barrier();
+	memoryBarrierShared();
 	imageStore(u_OutputImage, FragPos, vec4(MultipleScatteringFactor * L, 1.0f));
 }

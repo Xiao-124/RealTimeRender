@@ -21,7 +21,7 @@
     <ClCompile Include="main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="RenderTransmittanceLutPass.cpp">
+    <ClCompile Include="AtmoSpherePass.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="CustomGUI.cpp">
@@ -32,7 +32,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="RenderTransmittanceLutPass.h">
+    <ClInclude Include="AtmoSpherePass.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="CustomGUI.h">

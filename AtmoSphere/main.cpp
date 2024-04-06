@@ -1,6 +1,6 @@
 #include "Interface.h"
 //#include "TerrainRenderPass.h"
-#include "RenderTransmittanceLutPass.h"
+#include "AtmoSpherePass.h"
 #include "CustomGUI.h"
 int main()
 {
@@ -13,7 +13,7 @@ int main()
 
 
 	//ElayGraphics::ResourceManager::registerRenderPass(std::make_shared<TerrainRenderPass>("TerrainRenderPass", 0));
-	ElayGraphics::ResourceManager::registerRenderPass(std::make_shared<RenderTransmittanceLutPass>("RenderTransmittanceLutPass", 0));
+	ElayGraphics::ResourceManager::registerRenderPass(std::make_shared<AtmoSpherePass>("AtmoSpherePass", 0));
 	ElayGraphics::ResourceManager::registerSubGUI(std::make_shared<CCustomGUI>("CustomGUI", 1));
 
 	ElayGraphics::App::initApp();

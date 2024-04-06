@@ -3,38 +3,25 @@
 #include "AtmosphereParameter.h"
 
 
-class RenderTransmittanceLutPass : public IRenderPass
+class AtmoSpherePass : public IRenderPass
 {
 public:
-	struct CommonConstantBufferStructure
-	{
-		glm::mat4 gViewProjMat;
-		glm::vec4 gColor;
-		glm::vec3 gSunIlluminance;
-
-		int gScatteringMaxPathDepth;
-		unsigned int gResolution[2];
-		float gFrameTimeSec;
-		float gTimeSec;
-
-		unsigned int gMouseLastDownPos[2];
-		unsigned int gFrameId;
-		unsigned int gTerrainResolution;
-		float gScreenshotCaptureActive;
-
-		float RayMarchMinMaxSPP[2];
-		float pad[2];
-	};
-
-    RenderTransmittanceLutPass(const std::string& vPassName, int vExcutionOrder);
-    ~RenderTransmittanceLutPass();
+	AtmoSpherePass(const std::string& vPassName, int vExcutionOrder);
+    ~AtmoSpherePass();
 
     virtual void initV();
     virtual void updateV();
 
 protected:
-
 	SkyAtmosphereConstantBufferStructure updateSkyAtmosphereConstant();
+	void renderTerrian();
+	void renderTransmittanceLut();
+	void renderMultiScatter();
+	void renderSkyLut();
+	void renderCameraVolume();
+	void renderRayMarching();
+
+
 	bool currentShadowPermutation = false;
 	float currentMultipleScatteringFactor = 1.0f;
 	bool currentFastSky = true;
@@ -52,8 +39,6 @@ protected:
 	int uiViewRayMarchMaxSPP = 14;
 	LookUpTablesInfo LutsInfo;
 	AtmosphereInfo AtmosphereInfos;
-
-
 	GLuint AtmosphereBuffer;
 
 	CommonConstantBufferStructure mConstantBufferCPU;
@@ -71,20 +56,25 @@ private:
 	void _updateCommonConstantBuffer();
 
 
-    GLuint m_FBO;
+    GLuint TransmittanceFBO;
+	std::shared_ptr<CShader> TransmittanceShader;
+
+
 	std::shared_ptr<CShader> multiScatterShader;
 
+	GLuint SkyLutFBO;
 	std::shared_ptr<CShader> skyLutShader;
-	GLuint m_FBO2;
+	
 
-	GLuint m_FBO3;
+	
 	std::shared_ptr<CShader> cameraVolumeShader;
 
+	GLuint RayMarchingFBO;
 	std::shared_ptr<CShader> rayMarchingShader;
 	
 
 	std::shared_ptr<CShader> postShader;
 
-	GLuint m_FBO5;
+	GLuint TerrianFBO;
 	std::shared_ptr<CShader> terrianShader;
 };

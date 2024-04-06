@@ -1,4 +1,4 @@
-#include "RenderTransmittanceLutPass.h"
+#include "AtmoSpherePass.h"
 #include "Shader.h"
 #include "Interface.h"
 #include "Common.h"
@@ -60,7 +60,7 @@ auto createTexture2dFromExr = [&](const char* filename)
 };
 
 
-SkyAtmosphereConstantBufferStructure RenderTransmittanceLutPass::updateSkyAtmosphereConstant()
+SkyAtmosphereConstantBufferStructure AtmoSpherePass::updateSkyAtmosphereConstant()
 {
 
 	// Constant buffer update
@@ -106,24 +106,9 @@ SkyAtmosphereConstantBufferStructure RenderTransmittanceLutPass::updateSkyAtmosp
 
 		//
 		cb.gSkyViewProjMat = mViewProjMat;
-
 		cb.gSkyInvViewProjMat = glm::inverse(mViewProjMat);
 		cb.gSkyInvProjMat = glm::inverse(mProjMat);
 		cb.gSkyInvViewMat = glm::inverse(mViewMat);
-		//{
-		//	XMVECTOR mViewProjMatDet = XMMatrixDeterminant(mViewProjMat);
-		//	cb.gSkyInvViewProjMat = XMMatrixInverse(&mViewProjMatDet, mViewProjMat);
-		//}
-		//{
-		//	XMVECTOR mProjMatDet = XMMatrixDeterminant(mProjMat);
-		//	cb.gSkyInvProjMat = XMMatrixInverse(&mProjMatDet, mProjMat);
-		//}
-		//{
-		//	XMVECTOR mViewMatDet = XMMatrixDeterminant(mViewMat);
-		//	cb.gSkyInvViewMat = XMMatrixInverse(&mViewMatDet, mViewMat);
-		//}
-		//
-		//cb.gShadowmapViewProjMat = mShadowmapViewProjMat;
 		cb.camera = mCamPosFinal;
 		cb.view_ray = mViewDir;
 		cb.sun_direction = glm::vec3(0.0f,0.9f,0.4f);
@@ -134,22 +119,23 @@ SkyAtmosphereConstantBufferStructure RenderTransmittanceLutPass::updateSkyAtmosp
 
 }
 
-RenderTransmittanceLutPass::RenderTransmittanceLutPass(const std::string& vPassName, int vExcutionOrder) :IRenderPass(vPassName, vExcutionOrder)
+
+AtmoSpherePass::AtmoSpherePass(const std::string& vPassName, int vExcutionOrder) :IRenderPass(vPassName, vExcutionOrder)
 {
 
 
 
 }
 
-RenderTransmittanceLutPass::~RenderTransmittanceLutPass()
+AtmoSpherePass::~AtmoSpherePass()
 {
 
 
 }
 
-void RenderTransmittanceLutPass::initV()
+void AtmoSpherePass::initV()
 {
-	m_pShader = std::make_shared<CShader>("RenderTransmittanceLut_VS.glsl", "RenderTransmittanceLut_FS.glsl");
+	TransmittanceShader = std::make_shared<CShader>("RenderTransmittanceLut_VS.glsl", "RenderTransmittanceLut_FS.glsl");
 	multiScatterShader = std::make_shared<CShader>("NewMultiScatt_CS.glsl");
 	skyLutShader = std::make_shared<CShader>("SkyViewLut_VS.glsl", "SkyViewLut_FS.glsl");
 	cameraVolumeShader = std::make_shared<CShader>("RenderCameraVolume_VS.glsl",  "RenderCameraVolume_FS.glsl", "RenderCameraVolume_GS.glsl");
@@ -160,8 +146,6 @@ void RenderTransmittanceLutPass::initV()
 	
 	auto TerrianColor = std::make_shared<ElayGraphics::STexture>();
 	genTexture(TerrianColor);
-
-
 	auto TerrianDepth = std::make_shared<ElayGraphics::STexture>();
 	TerrianDepth->InternalFormat = GL_DEPTH_COMPONENT32F;
 	TerrianDepth->ExternalFormat = GL_DEPTH_COMPONENT;
@@ -173,13 +157,11 @@ void RenderTransmittanceLutPass::initV()
 	TerrianDepth->BorderColor = { 0,0,0,0 };
 	TerrianDepth->TextureAttachmentType = ElayGraphics::STexture::ETextureAttachmentType::DepthTexture;
 	genTexture(TerrianDepth);
-
-	m_FBO5 = genFBO({ TerrianColor, TerrianDepth });
+	TerrianFBO = genFBO({ TerrianColor, TerrianDepth });
 
 
 	auto mBlueNoise2dTex = createTexture2dFromExr("../Texture/bluenoise.exr");		// I do not remember where this noise texture comes from.
 	auto mTerrainHeightmapTex = createTexture2dFromExr("../Texture/heightmap1.exr");
-	int tid = mTerrainHeightmapTex->TextureID;
 	
 
 
@@ -192,10 +174,9 @@ void RenderTransmittanceLutPass::initV()
 	TextureConfig4Albedo->Type4WrapS = GL_CLAMP_TO_EDGE;
 	TextureConfig4Albedo->Type4WrapT = GL_CLAMP_TO_EDGE;
 	TextureConfig4Albedo->Type4WrapR = GL_CLAMP_TO_EDGE;
-
 	genTexture(TextureConfig4Albedo);
-	m_pShader->activeShader();
-	m_FBO = genFBO({ TextureConfig4Albedo });
+	TransmittanceShader->activeShader();
+	TransmittanceFBO = genFBO({ TextureConfig4Albedo });
 
 	ElayGraphics::ResourceManager::registerSharedData("TransmittanceLutTexture", TextureConfig4Albedo);
 	multiScatterShader->activeShader();
@@ -236,7 +217,7 @@ void RenderTransmittanceLutPass::initV()
 	skyLutTexture->Width = 192;
 	skyLutTexture->Height = 108;
 	genTexture(skyLutTexture);
-	m_FBO2 = genFBO({ skyLutTexture });
+	SkyLutFBO = genFBO({ skyLutTexture });
 
 
 
@@ -266,7 +247,7 @@ void RenderTransmittanceLutPass::initV()
 	rayMarchingTexture->ExternalFormat = GL_RGBA;
 	rayMarchingTexture->DataType = GL_FLOAT;
 	genTexture(rayMarchingTexture);
-	m_FBO3 = genFBO({ rayMarchingTexture });
+	RayMarchingFBO = genFBO({ rayMarchingTexture });
 
 	postShader->activeShader();
 	postShader->setTextureUniformValue("resultTexture", rayMarchingTexture);
@@ -311,9 +292,9 @@ void RenderTransmittanceLutPass::initV()
 	mConstantBufferCPU.gFrameTimeSec = float(CurTime - LastTime) / 1000.0f;
 	mConstantBufferCPU.gTimeSec = ElapsedTimeSec;
 	mConstantBufferCPU.gFrameId = mFrameId;
-	//uiViewRayMarchMaxSPP = uiViewRayMarchMinSPP >= uiViewRayMarchMaxSPP ? uiViewRayMarchMinSPP + 1 : uiViewRayMarchMaxSPP;
-	//mConstantBufferCPU.RayMarchMinMaxSPP[0] = float(uiViewRayMarchMinSPP);
-	//mConstantBufferCPU.RayMarchMinMaxSPP[1] = float(uiViewRayMarchMaxSPP);
+	uiViewRayMarchMaxSPP = uiViewRayMarchMinSPP >= uiViewRayMarchMaxSPP ? uiViewRayMarchMinSPP + 1 : uiViewRayMarchMaxSPP;
+	mConstantBufferCPU.RayMarchMinMaxSPP[0] = float(uiViewRayMarchMinSPP);
+	mConstantBufferCPU.RayMarchMinMaxSPP[1] = float(uiViewRayMarchMaxSPP);
 
 	int s = sizeof(CommonConstantBufferStructure);
 	mConstantBufferCPU.gScreenshotCaptureActive = 0; // Make sure the terrain or sundisk are not taken into account to focus on the most important part: atmosphere.
@@ -330,7 +311,7 @@ void RenderTransmittanceLutPass::initV()
 		&cb, GL_STATIC_DRAW, 1);
 }
 
-void RenderTransmittanceLutPass::_updateCommonConstantBuffer()
+void AtmoSpherePass::_updateCommonConstantBuffer()
 {
 	uiCamHeight = ElayGraphics::ResourceManager::getSharedDataByName<float>("uiCamHeight");
 	mCamPosFinal = { 0.0, 0.0f, 0.0f };
@@ -354,17 +335,17 @@ void RenderTransmittanceLutPass::_updateCommonConstantBuffer()
 }
 
 
-void RenderTransmittanceLutPass::updateV()
-{
-	_updateCommonConstantBuffer();
-	SkyAtmosphereConstantBufferStructure cb = updateSkyAtmosphereConstant();
-	updateSSBOBuffer(AtmosphereBuffer, sizeof(SkyAtmosphereConstantBufferStructure), &cb, GL_STATIC_DRAW);
 
+
+
+
+void AtmoSpherePass::renderTerrian()
+{
 	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_CULL_FACE);
 
 	glViewport(0, 0, ElayGraphics::WINDOW_KEYWORD::getWindowWidth(), ElayGraphics::WINDOW_KEYWORD::getWindowHeight());
-	glBindFramebuffer(GL_FRAMEBUFFER, m_FBO5);
+	glBindFramebuffer(GL_FRAMEBUFFER, TerrianFBO);
 	glClearColor(0.2f, 0.3f, 0.4f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	terrianShader->activeShader();
@@ -372,44 +353,42 @@ void RenderTransmittanceLutPass::updateV()
 	glDrawArraysInstanced(GL_TRIANGLES, 0, 6, TerrainResolution * TerrainResolution);
 	glBindVertexArray(0);
 	glFlush();
+}
 
-
-
-
+void AtmoSpherePass::renderTransmittanceLut()
+{
 	glDisable(GL_DEPTH_TEST);
 	glViewport(0, 0, LutsInfo.TRANSMITTANCE_TEXTURE_WIDTH, LutsInfo.TRANSMITTANCE_TEXTURE_HEIGHT);
-	glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
-	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glBindFramebuffer(GL_FRAMEBUFFER, TransmittanceFBO);
 	glClearColor(0.2f, 0.3f, 0.4f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	
-	m_pShader->activeShader();	
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	TransmittanceShader->activeShader();
 	drawQuad();
 	glFlush();
-	glFinish();
+}
 
+void AtmoSpherePass::renderMultiScatter()
+{
 	multiScatterShader->activeShader();
 	glDispatchCompute(LutsInfo.SCATTERING_TEXTURE_R_SIZE, LutsInfo.SCATTERING_TEXTURE_R_SIZE, 1);
 	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 	glFlush();
+}
 
-
-	glBindFramebuffer(GL_FRAMEBUFFER, m_FBO2);
-	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+void AtmoSpherePass::renderSkyLut()
+{
+	glBindFramebuffer(GL_FRAMEBUFFER, SkyLutFBO);
 	glViewport(0, 0, 192, 108);
 	glClearColor(0.2f, 0.3f, 0.4f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	skyLutShader->activeShader();
 	drawQuad();
 	glFlush();
-
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
 
-
-
-	
-	//glBindFramebuffer(GL_FRAMEBUFFER, m_FBO3);
-	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	
+void AtmoSpherePass::renderCameraVolume()
+{
 	glViewport(0, 0, LutsInfo.SCATTERING_TEXTURE_R_SIZE, LutsInfo.SCATTERING_TEXTURE_R_SIZE);
 	mConstantBufferCPU.gResolution[0] = LutsInfo.SCATTERING_TEXTURE_R_SIZE;
 	mConstantBufferCPU.gResolution[1] = LutsInfo.SCATTERING_TEXTURE_R_SIZE;
@@ -418,53 +397,62 @@ void RenderTransmittanceLutPass::updateV()
 	std::shared_ptr<ElayGraphics::STexture> cameraVolumeTexture = ElayGraphics::ResourceManager::getSharedDataByName<std::shared_ptr<ElayGraphics::STexture>>("cameraVolumeTexture");
 	for (int i = 0; i < LutsInfo.SCATTERING_TEXTURE_R_SIZE; i++)
 	{
-		GLuint FBO4;
-		glGenFramebuffers(1, &(GLuint&)FBO4);
-		glBindFramebuffer(GL_FRAMEBUFFER, FBO4);
+		GLuint tempFBO;
+		glGenFramebuffers(1, &(GLuint&)tempFBO);
+		glBindFramebuffer(GL_FRAMEBUFFER, tempFBO);
 		glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, cameraVolumeTexture->TextureID, 0, i);
-		GLint RenderBuffer;
-		//glGenRenderbuffers(1, &(GLuint&)RenderBuffer);
-		//glBindRenderbuffer(GL_RENDERBUFFER, RenderBuffer);
-		//glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, cameraVolumeTexture->Width, cameraVolumeTexture->Height);
-		//glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, RenderBuffer);
 		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		{
 			std::cerr << "Error::FBO:: Framebuffer Is Not Complete." << glCheckFramebufferStatus(GL_FRAMEBUFFER) << std::endl;
 		}
 		glClearColor(0.2f, 0.3f, 0.4f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		//glViewportIndexedf(i, 0, 0, LutsInfo.SCATTERING_TEXTURE_R_SIZE, LutsInfo.SCATTERING_TEXTURE_R_SIZE);
 		cameraVolumeShader->setIntUniformValue("ilayer", i);
 		drawQuad();
 		glFlush();
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-		glDeleteFramebuffers(1, &FBO4);
-		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	}	
+		glDeleteFramebuffers(1, &tempFBO);
+	}
 	glFlush();
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
 
+void AtmoSpherePass::renderRayMarching()
+{
 
 	glViewport(0, 0, ElayGraphics::WINDOW_KEYWORD::getWindowWidth(), ElayGraphics::WINDOW_KEYWORD::getWindowHeight());
-	glBindFramebuffer(GL_FRAMEBUFFER, m_FBO3);
-	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glBindFramebuffer(GL_FRAMEBUFFER, RayMarchingFBO);
 	glClearColor(0.2f, 0.3f, 0.4f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	mConstantBufferCPU.gResolution[0] = ElayGraphics::WINDOW_KEYWORD::getWindowWidth();
 	mConstantBufferCPU.gResolution[1] = ElayGraphics::WINDOW_KEYWORD::getWindowHeight();
 	updateSSBOBuffer(CommonConstantBuffer, sizeof(mConstantBufferCPU), &mConstantBufferCPU, GL_STATIC_DRAW);
-
 	rayMarchingShader->activeShader();
 	drawQuad();
 	glFlush();
-	glFinish();
+}
+
+
+
+void AtmoSpherePass::updateV()
+{
+	_updateCommonConstantBuffer();
+	SkyAtmosphereConstantBufferStructure cb = updateSkyAtmosphereConstant();
+	updateSSBOBuffer(AtmosphereBuffer, sizeof(SkyAtmosphereConstantBufferStructure), &cb, GL_STATIC_DRAW);
+
+	renderTerrian();
+	renderTransmittanceLut();
+	renderMultiScatter();
+	renderSkyLut();
+	renderCameraVolume();
+	renderRayMarching();
+	
 
 	glViewport(0, 0, ElayGraphics::WINDOW_KEYWORD::getWindowWidth(), ElayGraphics::WINDOW_KEYWORD::getWindowHeight());
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glClearColor(0.2f, 0.3f, 0.4f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	//glClear(GL_COLOR_BUFFER_BIT );
 	postShader->activeShader();
 	drawQuad();
 	glFlush();
