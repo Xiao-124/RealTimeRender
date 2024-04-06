@@ -102,5 +102,6 @@ void main()
 	IndirectIllumination *= FragAlbedo;
 
 	vec3 Result= DirectIllumination + IndirectIllumination;
+
 	imageStore(u_OutputImage, FragPos, vec4(Result, 1.0));
 }

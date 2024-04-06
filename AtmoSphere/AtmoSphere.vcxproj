@@ -130,15 +130,31 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AtmosphereParameter.cpp" />
+    <ClCompile Include="CustomGUI.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="TerrainRenderPass.cpp" />
+    <ClCompile Include="RenderTransmittanceLutPass.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="TerrainRenderPass.h" />
+    <ClInclude Include="AtmosphereParameter.h" />
+    <ClInclude Include="CustomGUI.h" />
+    <ClInclude Include="RenderTransmittanceLutPass.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="NewMultiScatt_CS.glsl" />
+    <None Include="PostProcess_FS.glsl" />
+    <None Include="PostProcess_VS.glsl" />
+    <None Include="RenderCameraVolume_FS.glsl" />
+    <None Include="RenderCameraVolume_GS.glsl" />
+    <None Include="RenderCameraVolume_VS.glsl" />
+    <None Include="RenderRayMarching_FS.glsl" />
+    <None Include="RenderRayMarching_VS.glsl" />
+    <None Include="RenderTerrain_FS.glsl" />
+    <None Include="RenderTerrain_VS.glsl" />
     <None Include="RenderTransmittanceLut_FS.glsl" />
     <None Include="RenderTransmittanceLut_VS.glsl" />
+    <None Include="SkyViewLut_FS.glsl" />
+    <None Include="SkyViewLut_VS.glsl" />
     <None Include="TerrainShadowMap_FS.glsl" />
     <None Include="TerrainShadowMap_VS.glsl" />
   </ItemGroup>

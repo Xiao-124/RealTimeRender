@@ -21,12 +21,24 @@
     <ClCompile Include="main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="TerrainRenderPass.cpp">
+    <ClCompile Include="RenderTransmittanceLutPass.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CustomGUI.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="AtmosphereParameter.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="TerrainRenderPass.h">
+    <ClInclude Include="RenderTransmittanceLutPass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CustomGUI.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="AtmosphereParameter.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -41,6 +53,42 @@
       <Filter>Shader</Filter>
     </None>
     <None Include="RenderTransmittanceLut_VS.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="NewMultiScatt_CS.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="SkyViewLut_FS.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="SkyViewLut_VS.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="RenderCameraVolume_FS.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="RenderCameraVolume_VS.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="RenderCameraVolume_GS.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="RenderRayMarching_VS.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="RenderRayMarching_FS.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="PostProcess_VS.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="PostProcess_FS.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="RenderTerrain_VS.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="RenderTerrain_FS.glsl">
       <Filter>Shader</Filter>
     </None>
   </ItemGroup>

@@ -75,39 +75,36 @@ void TerrainRenderPass::initV()
 
 	auto mBlueNoise2dTex = createTexture2dFromExr("../Texture/bluenoise.exr");		// I do not remember where this noise texture comes from.
 	auto mTerrainHeightmapTex = createTexture2dFromExr("../Texture/heightmap1.exr");
-	m_pShader->activeShader();
-	m_pShader->setTextureUniformValue("TerrainHeightmapTex", mTerrainHeightmapTex);
+	//m_pShader->activeShader();
+	//m_pShader->setTextureUniformValue("TerrainHeightmapTex", mTerrainHeightmapTex);
 
-
-
-	auto 
 }
 
 void TerrainRenderPass::updateV()
 {
 
-	glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-	glDisable(GL_CULL_FACE);
-	glEnable(GL_DEPTH_TEST);
-	glViewport(0, 0, ElayGraphics::WINDOW_KEYWORD::getWindowWidth(), ElayGraphics::WINDOW_KEYWORD::getWindowHeight());
-
-	m_pShader->activeShader();
-	m_pShader->setFloatUniformValue("gTerrainResolution", TerrainResolution);
-	glm::mat4 projection = ElayGraphics::Camera::getMainCameraProjectionMatrix();
-	glm::mat4 view = ElayGraphics::Camera::getMainCameraViewMatrix();
-	m_pShader->setMat4UniformValue("gViewProjMat", glm::value_ptr(projection*view));
-	//glm::mat4 LightProjectionMatrix = ElayGraphics::ResourceManager::getSharedDataByName<glm::mat4>("LightProjectionMatrix");
-	//glm::mat4 LightViewMatrix = ElayGraphics::ResourceManager::getSharedDataByName<glm::mat4>("LightViewMatrix");
-	//m_pShader->setMat4UniformValue("u_LightVPMatrix", glm::value_ptr(LightProjectionMatrix * LightViewMatrix));
-	
-	glDrawArraysInstanced(GL_TRIANGLES, 0, 6, TerrainResolution * TerrainResolution);
-	
+	//glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
+	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	//glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+	//glDisable(GL_CULL_FACE);
+	//glEnable(GL_DEPTH_TEST);
 	//glViewport(0, 0, ElayGraphics::WINDOW_KEYWORD::getWindowWidth(), ElayGraphics::WINDOW_KEYWORD::getWindowHeight());
-	glDisable(GL_CULL_FACE);
-	glDisable(GL_DEPTH_TEST);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	//
+	//m_pShader->activeShader();
+	//m_pShader->setFloatUniformValue("gTerrainResolution", TerrainResolution);
+	//glm::mat4 projection = ElayGraphics::Camera::getMainCameraProjectionMatrix();
+	//glm::mat4 view = ElayGraphics::Camera::getMainCameraViewMatrix();
+	//m_pShader->setMat4UniformValue("gViewProjMat", glm::value_ptr(projection*view));
+	////glm::mat4 LightProjectionMatrix = ElayGraphics::ResourceManager::getSharedDataByName<glm::mat4>("LightProjectionMatrix");
+	////glm::mat4 LightViewMatrix = ElayGraphics::ResourceManager::getSharedDataByName<glm::mat4>("LightViewMatrix");
+	////m_pShader->setMat4UniformValue("u_LightVPMatrix", glm::value_ptr(LightProjectionMatrix * LightViewMatrix));
+	//
+	//glDrawArraysInstanced(GL_TRIANGLES, 0, 6, TerrainResolution * TerrainResolution);
+	//
+	////glViewport(0, 0, ElayGraphics::WINDOW_KEYWORD::getWindowWidth(), ElayGraphics::WINDOW_KEYWORD::getWindowHeight());
+	//glDisable(GL_CULL_FACE);
+	//glDisable(GL_DEPTH_TEST);
+	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 
 
