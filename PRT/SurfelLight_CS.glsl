@@ -224,7 +224,7 @@ uniform vec4 _coefficientVoxelSize;
 
 
 
-uniform vec3 lightDirection = vec3(0.7,0.5,0);
+uniform vec3 lightDirection = vec3(-1.0, -0.7071, 0);
 uniform vec3 lightColor = vec3(1,1,1);
 
 layout (local_size_x = 32, local_size_y = 16, local_size_z = 1) in;

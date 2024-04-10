@@ -54,8 +54,18 @@ void CModelRenderPass::updateV()
 	for (int k = m_MinAABB.z; k < m_MaxAABB.z; k += step_probe)
 		_coefficientVoxelSize.z++;
 
+	auto LightDir = ElayGraphics::ResourceManager::getSharedDataByName<glm::vec3>("LightDir");
+	auto LightDepthTexture = ElayGraphics::ResourceManager::getSharedDataByName<std::shared_ptr<ElayGraphics::STexture>>("LightDepthTexture");
+	
 
 	m_pShader->activeShader();
+	m_pShader->setTextureUniformValue("u_LightDepthTexture", LightDepthTexture);
+	
+	glm::mat4 LightProjectionMatrix = ElayGraphics::ResourceManager::getSharedDataByName<glm::mat4>("LightProjectionMatrix");
+	glm::mat4 LightViewMatrix = ElayGraphics::ResourceManager::getSharedDataByName<glm::mat4>("LightViewMatrix");
+
+	m_pShader->setMat4UniformValue("u_LightVPMatrix", glm::value_ptr(LightProjectionMatrix * LightViewMatrix));
+	m_pShader->setFloatUniformValue("lightDirection", -LightDir[0], -LightDir[1], -LightDir[2]);
 	//ด๓ะก
 	m_pShader->setFloatUniformValue("_coefficientVoxelGridSize", step_probe);
 	//minAABB

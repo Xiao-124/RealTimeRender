@@ -131,18 +131,24 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CustomGUI.cpp" />
     <ClCompile Include="GBufferPass.cpp" />
+    <ClCompile Include="LightCamera.cpp" />
     <ClCompile Include="ModelRenderPass.cpp" />
     <ClCompile Include="LightProbePass.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ReLightProbePass.cpp" />
+    <ClCompile Include="ShadowMapPass.cpp" />
     <ClCompile Include="Sponza.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CustomGUI.h" />
     <ClInclude Include="GBufferPass.h" />
+    <ClInclude Include="LightCamera.h" />
     <ClInclude Include="ModelRenderPass.h" />
     <ClInclude Include="LightProbePass.h" />
     <ClInclude Include="ReLightProbePass.h" />
+    <ClInclude Include="ShadowMapPass.h" />
     <ClInclude Include="Sponza.h" />
   </ItemGroup>
   <ItemGroup>
@@ -152,6 +158,8 @@
     <None Include="GBuffer_VS.glsl" />
     <None Include="ModelRender_FS.glsl" />
     <None Include="ModelRender_VS.glsl" />
+    <None Include="RSMBuffer_FS.glsl" />
+    <None Include="RSMBuffer_VS.glsl" />
     <None Include="SurfelLight_CS.glsl" />
     <None Include="SurfelSample_CS.glsl" />
   </ItemGroup>

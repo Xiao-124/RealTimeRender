@@ -51,7 +51,7 @@ void CReLightProbePass::updateV()
 	int Index = 0;
 	int _coefficientSH9[27] = { 0 };
 
-
+	auto LightDir = ElayGraphics::ResourceManager::getSharedDataByName<glm::vec3>("LightDir");
 	for (int i = m_MinAABB.x; i < m_MaxAABB.x; i += step_probe)
 	{
 		for (int j = m_MinAABB.y; j < m_MaxAABB.y; j += step_probe)
@@ -64,6 +64,7 @@ void CReLightProbePass::updateV()
 				m_pShader->activeShader();
 				glm::vec3 _probePos = glm::vec3((i + step_probe) * 0.5, (j + step_probe) * 0.5, (k + step_probe) * 0.5);
 				m_pShader->setFloatUniformValue("_probePos", _probePos[0], _probePos[1], _probePos[2], 1);
+				m_pShader->setFloatUniformValue("lightDirection", -LightDir[0],- LightDir[1], -LightDir[2]);
 				glDispatchCompute(1, 1, 1);
 				glFlush();
 

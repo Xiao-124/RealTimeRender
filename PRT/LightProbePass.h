@@ -55,7 +55,7 @@ private:
 	float m_Aspect = 1.0f;
 	float m_Near = 0.1f;
 	float m_Far = 100.0f;
-	float step_probe = 1;
+	float step_probe = 4;
 
 	std::shared_ptr<SurfelData> surfelDatas;
 	GLuint surfelBuffer;
