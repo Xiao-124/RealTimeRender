@@ -15,7 +15,7 @@ void CLightCamera::initV()
 	ElayGraphics::Camera::setMainCameraFarPlane(1000);
 	ElayGraphics::Camera::setMainCameraPos({ -0.0730926, -1.18774, 2.28317 });
 	ElayGraphics::Camera::setMainCameraFront({ 0.0633111, 0.0078539, -0.997963 });
-	ElayGraphics::Camera::setMainCameraMoveSpeed(0.1);
+	ElayGraphics::Camera::setMainCameraMoveSpeed(1.0);
 	m_LightPos = ElayGraphics::ResourceManager::getSharedDataByName<glm::vec3>("LightPos");
 	m_LightDir = ElayGraphics::ResourceManager::getSharedDataByName<glm::vec3>("LightDir");
 	if (abs(m_LightDir) == m_LightUpVector)
@@ -42,10 +42,12 @@ void CLightCamera::updateV()
 	glm::vec3 m_MinAABB = ElayGraphics::ResourceManager::getSharedDataByName<glm::vec3>("MinAABB");
 	glm::vec3 m_MaxAABB = ElayGraphics::ResourceManager::getSharedDataByName<glm::vec3>("MaxAABB");
 	glm::vec3 pos = (m_MinAABB + m_MaxAABB)*glm::vec3(0.5);
+	
 
-	//pos -= m_LightDir * 100.0f;
+	//pos -= m_LightDir * (m_MaxAABB.y - m_MinAABB.y)* 0.1f;
+	//pos = glm::vec3(0, 5, 0);
 
-	m_LightViewMatrix = glm::lookAt(pos, glm::vec3(0,0,0), m_LightUpVector);
+	m_LightViewMatrix = glm::lookAt(m_LightPos, m_LightPos + m_LightDir, m_LightUpVector);
 
 
 	m_LightProjectionMatrix = glm::ortho(-m_CameraSizeExtent, m_CameraSizeExtent, -m_CameraSizeExtent, m_CameraSizeExtent, 0.1f, 1000.0f);

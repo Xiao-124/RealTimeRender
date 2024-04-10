@@ -36,6 +36,11 @@ void CReLightProbePass::initV()
 		shDatas->all_coefficientSH9[i].resize(27);
 	}
 	ElayGraphics::ResourceManager::registerSharedData("shDatas", shDatas);
+	auto LightDepthTexture = ElayGraphics::ResourceManager::getSharedDataByName<std::shared_ptr<ElayGraphics::STexture>>("LightDepthTexture");
+	m_pShader->activeShader();
+	m_pShader->setTextureUniformValue("u_LightDepthTexture", LightDepthTexture);
+
+	
 
 }
 
@@ -47,7 +52,10 @@ void CReLightProbePass::updateV()
 	float step_probe = ElayGraphics::ResourceManager::getSharedDataByName<float>("step_probe");
 	auto suefelDatas = ElayGraphics::ResourceManager::getSharedDataByName<std::shared_ptr<SurfelData>>("SurfelDatas");
 	GLuint surfelBuffer = ElayGraphics::ResourceManager::getSharedDataByName<GLuint>("SurfelBuffer");
+	glm::mat4 LightProjectionMatrix = ElayGraphics::ResourceManager::getSharedDataByName<glm::mat4>("LightProjectionMatrix");
+	glm::mat4 LightViewMatrix = ElayGraphics::ResourceManager::getSharedDataByName<glm::mat4>("LightViewMatrix");
 
+	
 	int Index = 0;
 	int _coefficientSH9[27] = { 0 };
 
@@ -65,6 +73,7 @@ void CReLightProbePass::updateV()
 				glm::vec3 _probePos = glm::vec3((i + step_probe) * 0.5, (j + step_probe) * 0.5, (k + step_probe) * 0.5);
 				m_pShader->setFloatUniformValue("_probePos", _probePos[0], _probePos[1], _probePos[2], 1);
 				m_pShader->setFloatUniformValue("lightDirection", -LightDir[0],- LightDir[1], -LightDir[2]);
+				m_pShader->setMat4UniformValue("u_LightVPMatrix", glm::value_ptr(LightProjectionMatrix * LightViewMatrix));
 				glDispatchCompute(1, 1, 1);
 				glFlush();
 

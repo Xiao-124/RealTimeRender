@@ -174,6 +174,8 @@ float DecodeFloatFromInt(int x)
 //}
 
 
+
+
 struct Surfel
 {
     vec3 position;
@@ -184,7 +186,7 @@ struct Surfel
 
 
 
-uniform float _skyLightIntensity;
+uniform float _skyLightIntensity = 1.0;
 uniform vec4 _probePos;
 
 layout(binding=0, std430) readonly buffer SurfelBuffer 
@@ -222,10 +224,37 @@ uniform float _coefficientVoxelGridSize;
 uniform vec4 _coefficientVoxelCorner;
 uniform vec4 _coefficientVoxelSize;
 
-
+uniform sampler2D u_LightDepthTexture; 
+uniform mat4 u_LightVPMatrix;
 
 uniform vec3 lightDirection = vec3(-1.0, -0.7071, 0);
-uniform vec3 lightColor = vec3(1,1,1);
+uniform vec3 lightColor = vec3(2,2,2);
+
+
+
+float ShadowCalculation(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir)
+{
+    // 执行透视除法
+    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+      // 变换到[0,1]的范围
+    projCoords = projCoords * 0.5 + 0.5;
+    if(projCoords.z > 1.0)
+    {
+        return 0;
+    }
+
+    // 取得最近点的深度(使用[0,1]范围下的fragPosLight当坐标)
+    float closestDepth = texture(u_LightDepthTexture, projCoords.xy).r; 
+    // 取得当前片段在光源视角下的深度
+    float currentDepth = projCoords.z;
+    // 检查当前片段是否在阴影中
+
+
+    float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.0005);
+    float shadow = currentDepth - bias > closestDepth  ? 1.0 : 0.0;
+
+    return shadow;
+}
 
 layout (local_size_x = 32, local_size_y = 16, local_size_z = 1) in;
 void main ()
@@ -235,10 +264,14 @@ void main ()
     Surfel surfel = _surfels[surfelIndex];
 
     vec3 ldir = normalize(lightDirection);
+    vec4 WorldPos = vec4(surfel.position, 1.0f);
+    vec4 fragPosLightSpace = u_LightVPMatrix * WorldPos;
+    float shadow = ShadowCalculation(fragPosLightSpace, surfel.normal, ldir);
+
 
     // radiance from light
     float NdotL = saturate(dot(surfel.normal, ldir));
-    vec3 radiance = surfel.albedo * lightColor * NdotL  * (1.0 - surfel.skyMask);
+    vec3 radiance = surfel.albedo * lightColor * NdotL  * (1.0 - surfel.skyMask) *(1.0- shadow);
     
     // direction from probe to surfel
     vec3 dir = normalize(surfel.position - _probePos.xyz);

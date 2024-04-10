@@ -7,6 +7,7 @@
 in  vec3 v2f_Position;
 in  vec2 v2f_TexCoords;
 in  vec3 v2f_Normal;
+in  vec4 v4f_lightNDCPos;
 out vec4 Color_;
 
 
@@ -194,8 +195,8 @@ uniform sampler2D u_DiffuseTexture;
 uniform sampler2D u_LightDepthTexture;
 
 uniform vec3 lightDirection = vec3(-1.0, -0.7071, 0);
-uniform vec3 lightColor = vec3(1,1,1);
-uniform float _GIIntensity = 0.0;
+uniform vec3 lightColor = vec3(2.0,2.0,2.0);
+uniform float _GIIntensity = 1.0;
 
 uniform mat4 u_LightVPMatrix;
 
@@ -204,19 +205,21 @@ float ShadowCalculation(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir)
 {
     // 执行透视除法
     vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
-    
       // 变换到[0,1]的范围
     projCoords = projCoords * 0.5 + 0.5;
     if(projCoords.z > 1.0)
     {
         return 0;
     }
+
     // 取得最近点的深度(使用[0,1]范围下的fragPosLight当坐标)
-    float closestDepth = textureLod(u_LightDepthTexture, projCoords.xy, 0).r; 
+    float closestDepth = texture(u_LightDepthTexture, projCoords.xy).r; 
     // 取得当前片段在光源视角下的深度
     float currentDepth = projCoords.z;
     // 检查当前片段是否在阴影中
-    float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);
+
+
+    float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.0005);
     float shadow = currentDepth - bias > closestDepth  ? 1.0 : 0.0;
 
     return shadow;
@@ -225,36 +228,33 @@ float ShadowCalculation(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir)
 
 void main()
 {
-	vec3 Albedo = vec3(1);
+
 	vec3 Position = v2f_Position;
 	vec3 Normal = normalize(v2f_Normal);
 
     vec4 WorldPos = vec4(Position, 1.0f);
 
     vec4 fragPosLightSpace = u_LightVPMatrix * WorldPos;
+
     vec3 ldir = normalize(lightDirection);
-
-
-    float shadow = ShadowCalculation(fragPosLightSpace, Normal, ldir);
+    float shadow = ShadowCalculation(v4f_lightNDCPos, Normal, ldir);
 
     
 
 	vec3 DiffuseColor = texture(u_DiffuseTexture, v2f_TexCoords).rgb;	
     // radiance from light
     float NdotL = saturate(dot(Normal, ldir));
-    vec3 diffuse = NdotL * lightColor * DiffuseColor;
+    vec3 diffuse = NdotL * lightColor * DiffuseColor * (1.0-shadow);
 
 
 	vec3 gi = SampleSHVoxel(
                     WorldPos, 
-                    Albedo, 
+                    DiffuseColor, 
                     Normal,
                     _coefficientVoxelGridSize,
                     _coefficientVoxelCorner,
                     _coefficientVoxelSize
                 );
-    //diffuse += gi*_GIIntensity;
-
-	Color_ = vec4(  diffuse*(1.0-shadow),    1.0f);
-    //Color_  = vec4(1.0f,1.0f,1.0f, 1.0f);
+    diffuse += gi*_GIIntensity;
+	Color_ = vec4(diffuse,    1.0f);
 }

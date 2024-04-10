@@ -19,14 +19,13 @@ CModelRenderPass::~CModelRenderPass()
 //Function:
 void CModelRenderPass::initV()
 {
-
 	m_pShader = std::make_shared<CShader>("ModelRender_VS.glsl", "ModelRender_FS.glsl");
 	m_pSponza = std::dynamic_pointer_cast<CSponza>(ElayGraphics::ResourceManager::getGameObjectByName("Sponza"));
-
 	auto shDatas = ElayGraphics::ResourceManager::getSharedDataByName<std::shared_ptr<SHData>>("shDatas");
-
-
 	all_shbuffer = genBuffer(GL_SHADER_STORAGE_BUFFER, shDatas->all_coefficientSH9.size() * shDatas->all_coefficientSH9[0].size() *sizeof(int), nullptr, GL_STATIC_DRAW,  2);
+	auto LightDepthTexture = ElayGraphics::ResourceManager::getSharedDataByName<std::shared_ptr<ElayGraphics::STexture>>("LightDepthTexture");
+	m_pShader->activeShader();
+	m_pShader->setTextureUniformValue("u_LightDepthTexture", LightDepthTexture);
 }
 
 //************************************************************************************
@@ -55,17 +54,15 @@ void CModelRenderPass::updateV()
 		_coefficientVoxelSize.z++;
 
 	auto LightDir = ElayGraphics::ResourceManager::getSharedDataByName<glm::vec3>("LightDir");
-	auto LightDepthTexture = ElayGraphics::ResourceManager::getSharedDataByName<std::shared_ptr<ElayGraphics::STexture>>("LightDepthTexture");
-	
+	float _GIIntensity = ElayGraphics::ResourceManager::getSharedDataByName<float>("GIIntensity");
 
 	m_pShader->activeShader();
-	m_pShader->setTextureUniformValue("u_LightDepthTexture", LightDepthTexture);
-	
 	glm::mat4 LightProjectionMatrix = ElayGraphics::ResourceManager::getSharedDataByName<glm::mat4>("LightProjectionMatrix");
 	glm::mat4 LightViewMatrix = ElayGraphics::ResourceManager::getSharedDataByName<glm::mat4>("LightViewMatrix");
 
 	m_pShader->setMat4UniformValue("u_LightVPMatrix", glm::value_ptr(LightProjectionMatrix * LightViewMatrix));
 	m_pShader->setFloatUniformValue("lightDirection", -LightDir[0], -LightDir[1], -LightDir[2]);
+	m_pShader->setFloatUniformValue("_GIIntensity", _GIIntensity);
 	//ด๓ะก
 	m_pShader->setFloatUniformValue("_coefficientVoxelGridSize", step_probe);
 	//minAABB
@@ -84,12 +81,10 @@ void CModelRenderPass::updateV()
 			all_shdata.push_back(shDatas->all_coefficientSH9[i][j]);
 		}	
 	}
-	updateSSBOBuffer(all_shbuffer, all_shdata.size() * sizeof(int), &all_shdata[0], GL_STATIC_DRAW);
-	
-	
+	updateSSBOBuffer(all_shbuffer, all_shdata.size() * sizeof(int), &all_shdata[0], GL_STATIC_DRAW);	
 	m_pSponza->updateModel(*m_pShader);
-
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_DEPTH_TEST);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 }

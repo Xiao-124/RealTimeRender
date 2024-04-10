@@ -10,10 +10,11 @@ layout(std140, binding = 0) uniform u_Matrices4ProjectionWorld
 };
 
 uniform mat4 u_ModelMatrix;
-
+uniform mat4 u_LightVPMatrix;
 out vec3 v2f_Position;
 out vec2 v2f_TexCoords;
 out vec3 v2f_Normal;
+out vec4 v4f_lightNDCPos;
 void main()
 {
 	vec4 FragPos = u_ModelMatrix * vec4(_Position, 1.0f);
@@ -25,4 +26,5 @@ void main()
 
 
 	v2f_Position = vec3(FragPos);
+	v4f_lightNDCPos = u_LightVPMatrix*FragPos;
 }
