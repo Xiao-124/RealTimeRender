@@ -4,10 +4,10 @@ in  vec3 v2f_Position;
 in  vec2 v2f_TexCoords;
 in  vec3 v2f_Normal;
 
-
-layout (location = 0) out vec4 AlbedoAndMetallic_;
-layout (location = 1) out vec4 Normal_;
-layout (location = 2) out vec3 Chebyshevs_;
+layout (location = 0) out vec3 WorldPosition_;
+layout (location = 1) out vec4 AlbedoAndMetallic_;
+layout (location = 2) out vec4 Normal_;
+layout (location = 3) out vec3 Chebyshevs_;
 
 
 uniform sampler2D u_DiffuseTexture;
@@ -28,6 +28,7 @@ void main()
 	float Alpha = textureLod(u_DiffuseTexture, v2f_TexCoords,0).a;
 	if(Alpha != 1.0f)
 		discard;
+	WorldPosition_ = v2f_Position;
 	AlbedoAndMetallic_ = vec4(DiffuseColor,1.0);
 	Normal_ = vec4(v2f_Normal.xyz, 1);
 	float depth = (gl_FragCoord.z);

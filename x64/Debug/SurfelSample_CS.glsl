@@ -58,20 +58,15 @@ void main ()
 
 
     // opaque geometry
-    //result.position = _worldPosCubemap.SampleLevel(sampler_point_clamp, dir, 0).rgb;
     result.position = textureLod(_worldPosCubemap, dir, 0).rgb;
-
-    //result.albedo = _albedoCubemap.SampleLevel(sampler_point_clamp, dir, 0).rgb;
-    result.position = textureLod(_worldPosCubemap, dir, 0).rgb;
-
-
+    result.albedo = textureLod(_albedoCubemap, dir, 0).rgb;
     vec4 normal_and_mask = textureLod(_normalCubemap, dir, 0);
     result.normal = normal_and_mask.xyz;
     result.skyMask = saturate(1.0 - normal_and_mask.w);
 
     // sample sky
     result.position += (_probePos.xyz + dir) * result.skyMask;
-    uint surfelIndex = id.x * 32 + id.y;
+    uint surfelIndex = id.x * 16 + id.y;
     _surfels[surfelIndex] = result;
 
 

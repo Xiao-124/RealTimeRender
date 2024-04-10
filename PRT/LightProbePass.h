@@ -32,6 +32,7 @@ public:
 private:
 	std::shared_ptr<CSponza> m_pSponza;
 
+	std::vector<std::shared_ptr<ElayGraphics::STexture>> m_TextureConfig4Position;
 	std::vector<std::shared_ptr<ElayGraphics::STexture>> m_TextureConfig4Albedos;
 	std::vector<std::shared_ptr<ElayGraphics::STexture>> m_TextureConfig4Normals;
 	std::vector<std::shared_ptr<ElayGraphics::STexture>> m_TextureConfig4Depths;
@@ -54,7 +55,7 @@ private:
 	float m_Aspect = 1.0f;
 	float m_Near = 0.1f;
 	float m_Far = 100.0f;
-	float step_probe = 10;
+	float step_probe = 1;
 
 	std::shared_ptr<SurfelData> surfelDatas;
 	GLuint surfelBuffer;

@@ -3,6 +3,7 @@
 #include "LightProbePass.h"
 #include "Sponza.h"
 #include "ReLightProbePass.h"
+#include "ModelRenderPass.h"
 int main()
 {
 
@@ -15,7 +16,7 @@ int main()
 	ElayGraphics::ResourceManager::registerGameObject(std::make_shared<CSponza>("Sponza", 1));
 	ElayGraphics::ResourceManager::registerRenderPass(std::make_shared<CLightProbePass>("LightProbePass", 0, ElayGraphics::ERenderPassType::RenderPassType_Once));
 	ElayGraphics::ResourceManager::registerRenderPass(std::make_shared<CReLightProbePass>("ReLightProbePass", 1));
-
+	ElayGraphics::ResourceManager::registerRenderPass(std::make_shared<CModelRenderPass>("CModelRenderPass", 2));
 
 	ElayGraphics::App::initApp();
 	ElayGraphics::App::updateApp();

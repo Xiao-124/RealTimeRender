@@ -1,6 +1,12 @@
 #pragma once
 #include "RenderPass.h"
 #include <GL/glew.h>
+
+struct SHData
+{
+	std::vector<std::vector<int>> all_coefficientSH9;
+};
+
 class CReLightProbePass : public IRenderPass
 {
 public:
@@ -13,8 +19,5 @@ public:
 
 private:
 	GLuint shBuffer;
-
-
-
-
+	std::shared_ptr<SHData> shDatas;
 };

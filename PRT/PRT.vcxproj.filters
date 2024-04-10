@@ -30,6 +30,12 @@
     <ClCompile Include="ReLightProbePass.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="ModelRenderPass.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="GBufferPass.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LightProbePass.h">
@@ -39,6 +45,12 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="ReLightProbePass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelRenderPass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="GBufferPass.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -53,6 +65,18 @@
       <Filter>Shader</Filter>
     </None>
     <None Include="SurfelLight_CS.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="ModelRender_VS.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="ModelRender_FS.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="GBuffer_VS.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="GBuffer_FS.glsl">
       <Filter>Shader</Filter>
     </None>
   </ItemGroup>

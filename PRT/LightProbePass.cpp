@@ -27,16 +27,25 @@ void CLightProbePass::initV()
 	m_MaxAABB = ElayGraphics::ResourceManager::getSharedDataByName<glm::vec3>("MaxAABB");
 	
 
-
 	for (int i = m_MinAABB.x; i < m_MaxAABB.x; i += step_probe)
 	{
 		for (int j = m_MinAABB.y; j < m_MaxAABB.y; j += step_probe)
 		{
 			for (int k = m_MinAABB.z; k < m_MaxAABB.z; k += step_probe)
 			{
+				auto TextureConfig4Position = std::make_shared<ElayGraphics::STexture>();
 				auto TextureConfig4Albedo = std::make_shared<ElayGraphics::STexture>();
 				auto TextureConfig4Normal = std::make_shared<ElayGraphics::STexture>();
 				auto TextureConfig4Chebyshev = std::make_shared<ElayGraphics::STexture>();
+
+				TextureConfig4Position->InternalFormat = TextureConfig4Normal->InternalFormat = GL_RGB32F;
+				TextureConfig4Position->ExternalFormat = TextureConfig4Normal->ExternalFormat = GL_RGB;
+				TextureConfig4Position->DataType = TextureConfig4Normal->DataType = GL_FLOAT;
+				TextureConfig4Position->TextureType = TextureConfig4Normal->TextureType = ElayGraphics::STexture::ETextureType::TextureCubeMap;
+				TextureConfig4Position->Width = TextureConfig4Normal->Width = m_BakeResolution;
+				TextureConfig4Position->Height = TextureConfig4Normal->Height = m_BakeResolution;
+
+
 				TextureConfig4Albedo->InternalFormat = TextureConfig4Normal->InternalFormat = GL_RGBA32F;
 				TextureConfig4Albedo->ExternalFormat = TextureConfig4Normal->ExternalFormat = GL_RGBA;
 				TextureConfig4Albedo->DataType = TextureConfig4Normal->DataType = GL_FLOAT;
@@ -51,9 +60,12 @@ void CLightProbePass::initV()
 				TextureConfig4Chebyshev->Width = m_BakeResolution;
 				TextureConfig4Chebyshev->Height = m_BakeResolution;
 
+
 				genTexture(TextureConfig4Chebyshev);
 				genTexture(TextureConfig4Albedo);
 				genTexture(TextureConfig4Normal);
+				genTexture(TextureConfig4Position);
+
 				auto TextureConfig4Depth = std::make_shared<ElayGraphics::STexture>();
 				TextureConfig4Depth->InternalFormat = GL_RGBA32F;
 				TextureConfig4Depth->ExternalFormat = GL_RGBA;
@@ -63,11 +75,15 @@ void CLightProbePass::initV()
 				TextureConfig4Depth->Width = m_BakeResolution;
 				TextureConfig4Depth->Height = m_BakeResolution;
 				genTexture(TextureConfig4Depth);
+
+				m_TextureConfig4Position.push_back(TextureConfig4Position);
 				m_TextureConfig4Albedos.push_back(TextureConfig4Albedo);
 				m_TextureConfig4Normals.push_back(TextureConfig4Normal);
 				m_TextureConfig4Depths.push_back(TextureConfig4Depth);
 				m_TextureConfig4Chebyshevs.push_back(TextureConfig4Chebyshev);
-				auto FBO = genFBO({ TextureConfig4Albedo, TextureConfig4Normal,TextureConfig4Chebyshev, TextureConfig4Depth });
+				auto FBO = genFBO({ TextureConfig4Position, TextureConfig4Albedo, TextureConfig4Normal,TextureConfig4Chebyshev, TextureConfig4Depth });
+
+
 				m_FBOs.push_back(FBO);
 			}
 		}
@@ -86,7 +102,9 @@ void CLightProbePass::initV()
 	ElayGraphics::ResourceManager::registerSharedData("SurfelBuffer", surfelBuffer);
 	ElayGraphics::ResourceManager::registerSharedData("SurfelDatas", surfelDatas);
 	ElayGraphics::ResourceManager::registerSharedData("BakeResolution", m_BakeResolution);
-	ElayGraphics::ResourceManager::registerSharedData("BakeRadianceTextures", m_TextureConfig4Albedos);
+
+	ElayGraphics::ResourceManager::registerSharedData("BakePositionTextures", m_TextureConfig4Position);
+	ElayGraphics::ResourceManager::registerSharedData("BakeAlbedoTextures", m_TextureConfig4Albedos);
 	ElayGraphics::ResourceManager::registerSharedData("BakeNormalTextures", m_TextureConfig4Normals);
 	ElayGraphics::ResourceManager::registerSharedData("BakeChebyshevsTextures", m_TextureConfig4Chebyshevs);
 	ElayGraphics::ResourceManager::registerSharedData("step_probe", step_probe);
@@ -124,9 +142,10 @@ void CLightProbePass::updateV()
 					glm::mat4x4 ViewMatrix = glm::lookAt(ViewPos, ViewPos + ViewDir, m_LightUpVector);
 					glm::mat4x4 ProjectionMatrix = glm::perspective(m_Fovy, m_Aspect, m_Near, m_Far);
 
-					glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, m_TextureConfig4Albedos[Index]->TextureID, 0);
-					glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, m_TextureConfig4Normals[Index]->TextureID, 0);
-					glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, m_TextureConfig4Chebyshevs[Index]->TextureID, 0);
+					glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, m_TextureConfig4Position[Index]->TextureID, 0);
+					glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, m_TextureConfig4Albedos[Index]->TextureID, 0);
+					glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, m_TextureConfig4Normals[Index]->TextureID, 0);
+					glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, m_TextureConfig4Chebyshevs[Index]->TextureID, 0);
 					glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, m_TextureConfig4Depths[Index]->TextureID, 0);
 					m_pShader->activeShader();
 					m_pShader->setMat4UniformValue("u_BakeViewMatrix", glm::value_ptr(ViewMatrix));
@@ -155,9 +174,12 @@ void CLightProbePass::updateV()
 			for (int k = m_MinAABB.z; k < m_MaxAABB.z; k += step_probe)
 			{
 				surfelSampleCS->activeShader();
-				surfelSampleCS->setFloatUniformValue("_probePos", i, j, k , 1);
+				glm::vec3 _probePos = glm::vec3((i + step_probe) * 0.5, (j + step_probe) * 0.5, (k + step_probe) * 0.5);
+				surfelSampleCS->setFloatUniformValue("_probePos", _probePos[0], _probePos[1], _probePos[2], 1);
+
 				surfelSampleCS->setFloatUniformValue("_randSeed", rand() /(float)(RAND_MAX));
-				surfelSampleCS->setTextureUniformValue("_worldPosCubemap", m_TextureConfig4Chebyshevs[Index]);
+
+				surfelSampleCS->setTextureUniformValue("_worldPosCubemap", m_TextureConfig4Position[Index]);
 				surfelSampleCS->setTextureUniformValue("_normalCubemap", m_TextureConfig4Normals[Index]);
 				surfelSampleCS->setTextureUniformValue("_albedoCubemap", m_TextureConfig4Albedos[Index]);
 				glDispatchCompute(1, 1, 1);
