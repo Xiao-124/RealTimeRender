@@ -19,6 +19,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HizCulling", "HizCulling\Hi
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PRT", "PRT\PRT.vcxproj", "{EBCCBAD5-12C6-406E-B7C0-E45766311993}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LPV", "LPV\016_Cascaded Light Propagation Volumes for Real-Time Indirect Illumination.vcxproj", "{F8B5E982-E4CD-F437-4D9D-D4FC39D4D76A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -91,6 +93,14 @@ Global
 		{EBCCBAD5-12C6-406E-B7C0-E45766311993}.Release|x64.Build.0 = Release|x64
 		{EBCCBAD5-12C6-406E-B7C0-E45766311993}.Release|x86.ActiveCfg = Release|Win32
 		{EBCCBAD5-12C6-406E-B7C0-E45766311993}.Release|x86.Build.0 = Release|Win32
+		{F8B5E982-E4CD-F437-4D9D-D4FC39D4D76A}.Debug|x64.ActiveCfg = Debug|x64
+		{F8B5E982-E4CD-F437-4D9D-D4FC39D4D76A}.Debug|x64.Build.0 = Debug|x64
+		{F8B5E982-E4CD-F437-4D9D-D4FC39D4D76A}.Debug|x86.ActiveCfg = Debug|x64
+		{F8B5E982-E4CD-F437-4D9D-D4FC39D4D76A}.Debug|x86.Build.0 = Debug|x64
+		{F8B5E982-E4CD-F437-4D9D-D4FC39D4D76A}.Release|x64.ActiveCfg = Release|x64
+		{F8B5E982-E4CD-F437-4D9D-D4FC39D4D76A}.Release|x64.Build.0 = Release|x64
+		{F8B5E982-E4CD-F437-4D9D-D4FC39D4D76A}.Release|x86.ActiveCfg = Release|x64
+		{F8B5E982-E4CD-F437-4D9D-D4FC39D4D76A}.Release|x86.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
