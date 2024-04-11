@@ -46,7 +46,7 @@
     <LinkIncremental>true</LinkIncremental>
     <OutDir>..\x64\Debug\</OutDir>
     <IntDir>x64\Debug\</IntDir>
-    <TargetName>016_Cascaded Light Propagation Volumes for Real-Time Indirect Illumination</TargetName>
+    <TargetName>LPV</TargetName>
     <TargetExt>.exe</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -99,11 +99,10 @@
     <ClInclude Include="CustomGUI.h" />
     <ClInclude Include="DirectLightPass.h" />
     <ClInclude Include="GBufferPass.h" />
-    <ClInclude Include="GeometryInjectPass.h" />
     <ClInclude Include="IndirectLightPass.h" />
     <ClInclude Include="LightCamera.h" />
-    <ClInclude Include="LightInjectPass.h" />
-    <ClInclude Include="PropagationPass.h" />
+    <ClInclude Include="InjectLightPass.h" />
+    <ClInclude Include="PropagationLightPass.h" />
     <ClInclude Include="RSMBufferPass.h" />
     <ClInclude Include="ScreenQuadPass.h" />
     <ClInclude Include="Sponza.h" />
@@ -113,11 +112,10 @@
     <ClCompile Include="CustomGUI.cpp" />
     <ClCompile Include="DirectLightPass.cpp" />
     <ClCompile Include="GBufferPass.cpp" />
-    <ClCompile Include="GeometryInjectPass.cpp" />
     <ClCompile Include="IndirectLightPass.cpp" />
     <ClCompile Include="LightCamera.cpp" />
-    <ClCompile Include="LightInjectPass.cpp" />
-    <ClCompile Include="PropagationPass.cpp" />
+    <ClCompile Include="InjectLightPass.cpp" />
+    <ClCompile Include="PropagationLightPass.cpp" />
     <ClCompile Include="RSMBufferPass.cpp" />
     <ClCompile Include="ScreenQuadPass.cpp" />
     <ClCompile Include="Sponza.cpp" />
@@ -129,14 +127,10 @@
     <None Include="DirectLightPass_CS.glsl" />
     <None Include="GBuffer_FS.glsl" />
     <None Include="GBuffer_VS.glsl" />
-    <None Include="GeometryInjectPass_FS.glsl" />
-    <None Include="GeometryInjectPass_VS.glsl" />
     <None Include="IndirectLightPass_FS.glsl" />
     <None Include="IndirectLightPass_VS.glsl" />
-    <None Include="LightInjectPass_FS.glsl" />
-    <None Include="LightInjectPass_VS.glsl" />
-    <None Include="PropagationPass_FS.glsl" />
-    <None Include="PropagationPass_VS.glsl" />
+    <None Include="InjectLight_CS.glsl" />
+    <None Include="PropagationLight_CS.glsl" />
     <None Include="RSMBuffer_FS.glsl" />
     <None Include="RSMBuffer_VS.glsl" />
     <None Include="ScreenQuad_FS.glsl" />

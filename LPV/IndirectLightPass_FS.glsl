@@ -25,7 +25,8 @@ vec4 evalSH_direct( vec3 direction )
 ivec3 convertPointToGridIndex(vec3 vPos) {
 	return ivec3((vPos - u_MinAABB) / u_CellSize);
 }
-const ivec3 propDirections[8] = {
+const ivec3 propDirections[8] = 
+{
 	ivec3(u_CellSize * 0.5,u_CellSize * 0.5,u_CellSize * 0.5),
 	ivec3(u_CellSize * 0.5,u_CellSize * 0.5,-u_CellSize * 0.5),
 	ivec3(u_CellSize * 0.5,-u_CellSize * 0.5,u_CellSize * 0.5),

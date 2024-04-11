@@ -24,19 +24,16 @@
     <ClInclude Include="GBufferPass.h">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="GeometryInjectPass.h">
-      <Filter>Headers</Filter>
-    </ClInclude>
     <ClInclude Include="IndirectLightPass.h">
       <Filter>Headers</Filter>
     </ClInclude>
     <ClInclude Include="LightCamera.h">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="LightInjectPass.h">
+    <ClInclude Include="InjectLightPass.h">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="PropagationPass.h">
+    <ClInclude Include="PropagationLightPass.h">
       <Filter>Headers</Filter>
     </ClInclude>
     <ClInclude Include="RSMBufferPass.h">
@@ -62,19 +59,16 @@
     <ClCompile Include="GBufferPass.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
-    <ClCompile Include="GeometryInjectPass.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
     <ClCompile Include="IndirectLightPass.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="LightCamera.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
-    <ClCompile Include="LightInjectPass.cpp">
+    <ClCompile Include="InjectLightPass.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
-    <ClCompile Include="PropagationPass.cpp">
+    <ClCompile Include="PropagationLightPass.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="RSMBufferPass.cpp">
@@ -106,30 +100,6 @@
     <None Include="GBuffer_VS.glsl">
       <Filter>Shader</Filter>
     </None>
-    <None Include="GeometryInjectPass_FS.glsl">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="GeometryInjectPass_VS.glsl">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="IndirectLightPass_FS.glsl">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="IndirectLightPass_VS.glsl">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="LightInjectPass_FS.glsl">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="LightInjectPass_VS.glsl">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="PropagationPass_FS.glsl">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="PropagationPass_VS.glsl">
-      <Filter>Shader</Filter>
-    </None>
     <None Include="RSMBuffer_FS.glsl">
       <Filter>Shader</Filter>
     </None>
@@ -140,6 +110,18 @@
       <Filter>Shader</Filter>
     </None>
     <None Include="ScreenQuad_VS.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="InjectLight_CS.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="PropagationLight_CS.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="IndirectLightPass_FS.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="IndirectLightPass_VS.glsl">
       <Filter>Shader</Filter>
     </None>
   </ItemGroup>

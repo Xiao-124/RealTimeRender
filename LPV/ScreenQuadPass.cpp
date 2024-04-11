@@ -19,6 +19,7 @@ void CScreenQuadPass::initV()
 	m_pShader = std::make_shared<CShader>("ScreenQuad_VS.glsl", "ScreenQuad_FS.glsl");
 	m_pShader->activeShader();
 	m_pShader->setFloatUniformValue("u_Exposure", ElayGraphics::ResourceManager::getSharedDataByName<float>("Exposure"));
+	
 	m_pShader->setTextureUniformValue("u_IndirectTexture", ElayGraphics::ResourceManager::getSharedDataByName<std::shared_ptr<ElayGraphics::STexture>>("IndirectLightTexture"));
 	m_pShader->setTextureUniformValue("u_DirectTexture", ElayGraphics::ResourceManager::getSharedDataByName<std::shared_ptr<ElayGraphics::STexture>>("DirectIlluminationImage"));
 	m_pShader->setTextureUniformValue("u_AlbedoTexture", ElayGraphics::ResourceManager::getSharedDataByName<std::shared_ptr<ElayGraphics::STexture>>("AlbedoTexture"));
@@ -28,10 +29,12 @@ void CScreenQuadPass::initV()
 //Function:
 void CScreenQuadPass::updateV()
 {
+	bool useIndirect = ElayGraphics::ResourceManager::getSharedDataByName<bool>("useIndirect");
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	m_pShader->activeShader();
+	m_pShader->setIntUniformValue("useIndirect", useIndirect);
 	drawQuad();
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

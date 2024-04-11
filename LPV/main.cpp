@@ -7,10 +7,10 @@
 #include "CustomGUI.h"
 #include "DirectLightPass.h"
 #include "AABBDebugPass.h"
-#include "LightInjectPass.h"
-#include "GeometryInjectPass.h"
-#include "PropagationPass.h"
+#include "InjectLightPass.h"
+#include "PropagationLightPass.h"
 #include "IndirectLightPass.h"
+
 int main()
 {
 	ElayGraphics::WINDOW_KEYWORD::setSampleNum(1);
@@ -24,15 +24,13 @@ int main()
 	ElayGraphics::ResourceManager::registerRenderPass(std::make_shared<CRSMBufferPass>("RSMBufferPass", 1));
 	ElayGraphics::ResourceManager::registerRenderPass(std::make_shared<CDirectLightPass>("DirectLightPass", 2));
 
+	ElayGraphics::ResourceManager::registerRenderPass(std::make_shared<CInjectLightPass>("InjectLightPass", 3));
+	ElayGraphics::ResourceManager::registerRenderPass(std::make_shared<CPropagationLightPass>("PropagationLightPass", 4));
 
-	ElayGraphics::ResourceManager::registerRenderPass(std::make_shared<CLightInjectPass>("LightInjectPass", 3));
-	ElayGraphics::ResourceManager::registerRenderPass(std::make_shared<CGeometryInjectPass>("GeometryInjectPass", 4));
 
-
-	ElayGraphics::ResourceManager::registerRenderPass(std::make_shared<CPropagationPass>("PropagationPass", 5));
-	ElayGraphics::ResourceManager::registerRenderPass(std::make_shared<CIndirectLightPass>("IndirectLightPass", 6));
-	ElayGraphics::ResourceManager::registerRenderPass(std::make_shared<CScreenQuadPass>("ScreenQuadPass", 7));
-	ElayGraphics::ResourceManager::registerRenderPass(std::make_shared<CAABBDebugPass>("AABBDebugPass", 8));
+	ElayGraphics::ResourceManager::registerRenderPass(std::make_shared<CIndirectLightPass>("IndirectLightPass", 5));
+	ElayGraphics::ResourceManager::registerRenderPass(std::make_shared<CScreenQuadPass>("ScreenQuadPass", 6));
+	ElayGraphics::ResourceManager::registerRenderPass(std::make_shared<CAABBDebugPass>("AABBDebugPass", 7));
 
 
 	ElayGraphics::ResourceManager::registerSubGUI(std::make_shared<CCustomGUI>("CustomGUI", 1));

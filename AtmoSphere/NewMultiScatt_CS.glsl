@@ -597,13 +597,16 @@ float fromSubUvsToUnit(float u, float resolution) { return (u - 0.5f / resolutio
 
 
 
+
 shared vec3 MultiScatAs1SharedMem[64];
 shared vec3 LSharedMem[64];
-
 layout (local_size_x = 1, local_size_y = 1, local_size_z = 64) in;
 layout (rgba32f, binding = 0) uniform writeonly image2D u_OutputImage;
+
+
 void main()
 {
+	
 	vec2 pixPos = vec2(gl_GlobalInvocationID.xy) + 0.5f;
 	vec2 uv = pixPos / MultiScatteringLUTRes;
 	uvec3 ThreadId = gl_GlobalInvocationID.xyz;
@@ -635,6 +638,7 @@ void main()
 #define SQRTSAMPLECOUNT 8
 	const float sqrtSample = float(SQRTSAMPLECOUNT);
 	float i = 0.5f + float(ThreadId.z / SQRTSAMPLECOUNT);
+
 	float j = 0.5f + float(ThreadId.z - float((ThreadId.z / SQRTSAMPLECOUNT)*SQRTSAMPLECOUNT));
 	{
 		float randA = i / sqrtSample;
@@ -650,117 +654,105 @@ void main()
 		WorldDir.y = sinTheta * sinPhi;
 		WorldDir.z = cosPhi;
 		SingleScatteringResult result = IntegrateScatteredLuminance(pixPos, WorldPos, WorldDir, sunDir, Atmosphere, ground, SampleCountIni, DepthBufferValue, VariableSampleCount, MieRayPhase);
-
-		barrier();
-		memoryBarrierShared();
+		
 		MultiScatAs1SharedMem[ThreadId.z] = result.MultiScatAs1 * SphereSolidAngle / (sqrtSample * sqrtSample);
-		barrier();
-		memoryBarrierShared();
 		LSharedMem[ThreadId.z] = result.L * SphereSolidAngle / (sqrtSample * sqrtSample);
-		barrier();
-		memoryBarrierShared();
 	}
 #undef SQRTSAMPLECOUNT
 
-	//barrier();
-	barrier();
+	groupMemoryBarrier();
 	memoryBarrierShared();
+	barrier();
+
 	// 64 to 32
 	if (ThreadId.z < 32)
 	{
-		barrier();
 		MultiScatAs1SharedMem[ThreadId.z] += MultiScatAs1SharedMem[ThreadId.z + 32];
-		barrier();
-		memoryBarrierShared();
 		LSharedMem[ThreadId.z] += LSharedMem[ThreadId.z + 32];
-		barrier();
-		memoryBarrierShared();
 	}
-	//barrier();
-	barrier();
+	else
+	{
+		return;
+	}
+	groupMemoryBarrier();
 	memoryBarrierShared();
+	barrier();
+
+
 	// 32 to 16
 	if (ThreadId.z < 16)
 	{
-		barrier();
 		MultiScatAs1SharedMem[ThreadId.z] += MultiScatAs1SharedMem[ThreadId.z + 16];
-		barrier();
-		memoryBarrierShared();
 		LSharedMem[ThreadId.z] += LSharedMem[ThreadId.z + 16];
-		barrier();
-		memoryBarrierShared();
 	}
-	//barrier();
-	barrier();
+	else
+	{
+		return;
+	}
+	groupMemoryBarrier();
 	memoryBarrierShared();
-	// 16 to 8 (16 is thread group min hardware size with intel, no sync required from there)
+	barrier();
+
+	//// 16 to 8 (16 is thread group min hardware size with intel, no sync required from there)
 	if (ThreadId.z < 8)
 	{
-		barrier();
-		memoryBarrierShared();
 		MultiScatAs1SharedMem[ThreadId.z] += MultiScatAs1SharedMem[ThreadId.z + 8];
-		barrier();
-		memoryBarrierShared();
 		LSharedMem[ThreadId.z] += LSharedMem[ThreadId.z + 8];
-		barrier();
-		memoryBarrierShared();
 	}
-	//barrier();
-	barrier();
+	else
+	{
+		return;
+	}
+	groupMemoryBarrier();
 	memoryBarrierShared();
+	barrier();
+
+	
 	if (ThreadId.z < 4)
 	{
-		barrier();
-		memoryBarrierShared();
 		MultiScatAs1SharedMem[ThreadId.z] += MultiScatAs1SharedMem[ThreadId.z + 4];
-		barrier();
-		memoryBarrierShared();
 		LSharedMem[ThreadId.z] += LSharedMem[ThreadId.z + 4];
-		barrier();
-		memoryBarrierShared();
 	}
-	//barrier();
-	barrier();
+	else
+	{
+		return;
+	}	
+	groupMemoryBarrier();
 	memoryBarrierShared();
+	barrier();
+
 	if (ThreadId.z < 2)
 	{
-		barrier();
-		memoryBarrierShared();
 		MultiScatAs1SharedMem[ThreadId.z] += MultiScatAs1SharedMem[ThreadId.z + 2];
-		barrier();
-		memoryBarrierShared();
 		LSharedMem[ThreadId.z] += LSharedMem[ThreadId.z + 2];
-		barrier();
-		memoryBarrierShared();
 	}
-	//barrier();
-	barrier();
+	else
+	{
+		return;
+	}
+	groupMemoryBarrier();
 	memoryBarrierShared();
+	barrier();
+	
+
 	if (ThreadId.z < 1)
 	{
-		barrier();
-		memoryBarrierShared();
 		MultiScatAs1SharedMem[ThreadId.z] += MultiScatAs1SharedMem[ThreadId.z + 1];
-		barrier();
-		memoryBarrierShared();
 		LSharedMem[ThreadId.z] += LSharedMem[ThreadId.z + 1];
-		barrier();
-		memoryBarrierShared();
 	}
-	//barrier();
-	barrier();
+	else
+	{
+		return;
+	}
+	groupMemoryBarrier();
 	memoryBarrierShared();
+	barrier();
+
 	if (ThreadId.z > 0)
 		return;
 
-	barrier();
-	memoryBarrierShared();
 	vec3 MultiScatAs1			= MultiScatAs1SharedMem[0] * IsotropicPhase;	// Equation 7 f_ms
-	barrier();
-	memoryBarrierShared();
 	vec3 InScatteredLuminance	= LSharedMem[0] * IsotropicPhase;				// Equation 5 L_2ndOrder
-	barrier();
-	memoryBarrierShared();
 	// MultiScatAs1 represents the amount of luminance scattered as if the integral of scattered luminance over the sphere would be 1.
 	//  - 1st order of scattering: one can ray-march a straight path as usual over the sphere. That is InScatteredLuminance.
 	//  - 2nd order of scattering: the inscattered luminance is InScatteredLuminance at each of samples of fist order integration. Assuming a uniform phase function that is represented by MultiScatAs1,
@@ -775,10 +767,6 @@ void main()
 	const vec3 SumOfAllMultiScatteringEventsContribution = 1.0f / (1.0 - r);
 	vec3 L = InScatteredLuminance * SumOfAllMultiScatteringEventsContribution;// Equation 10 Psi_ms
 #endif
-	barrier();
-	memoryBarrierShared();
 	ivec2 FragPos = ivec2(gl_GlobalInvocationID.xy);
-	barrier();
-	memoryBarrierShared();
 	imageStore(u_OutputImage, FragPos, vec4(MultipleScatteringFactor * L, 1.0f));
 }
