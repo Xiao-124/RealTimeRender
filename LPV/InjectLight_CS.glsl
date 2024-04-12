@@ -9,9 +9,24 @@
 #define SH_cosLobe_C0 0.886226925 
 #define SH_cosLobe_C1 1.02332671 
 
-#extension GL_NV_shader_atomic_float : require
-#extension GL_NV_shader_atomic_fp16_vector : require
-#extension GL_NV_gpu_shader5 : require
+// 使用定点数存储小数, 保留小数点后 5 位
+// 因为 compute shader 的 InterlockedAdd 不支持 float
+#define FIXED_SCALE 100000.0
+int EncodeFloatToInt(float x)
+{
+    return int(x * FIXED_SCALE);
+}
+float DecodeFloatFromInt(int x)
+{
+    return float(x) / FIXED_SCALE;
+}
+
+//#extension GL_EXT_shader_atomic_float : require
+//#extension GL_EXT_shader_atomic_fp16_vector : require
+
+//#extension GL_NV_shader_atomic_float : require
+//#extension GL_NV_shader_atomic_fp16_vector : require
+//#extension GL_NV_gpu_shader5 : require
 
 layout(rgba16f, binding = 0) uniform image3D LPVGridR_;
 layout(rgba16f, binding = 1) uniform image3D LPVGridG_;
@@ -81,31 +96,35 @@ void main()
 	float BlockingPotencial = calculateBlockingPotencial(surfelArea, u_LightDir, v2f_normalFromRSM);
 	vec4 SHCoeffGV = evalCosineLobeToDir(v2f_normalFromRSM) * BlockingPotencial;
 
-
+	groupMemoryBarrier();
+	memoryBarrierImage();
+	vec4 R = imageLoad(LPVGridR_,v2f_volumeCellIndex);
+	vec4 G = imageLoad(LPVGridG_,v2f_volumeCellIndex);
+	vec4 B = imageLoad(LPVGridB_,v2f_volumeCellIndex);	
+	vec4 V = imageLoad(GeometryVolume_, v2f_volumeCellIndex);
 	
-	//vec4 R = imageLoad(LPVGridR_,v2f_volumeCellIndex);
-	//vec4 G = imageLoad(LPVGridG_,v2f_volumeCellIndex);
-	//vec4 B = imageLoad(LPVGridB_,v2f_volumeCellIndex);	
-	//vec4 V = imageLoad(GeometryVolume_, v2f_volumeCellIndex);
-	//
-	//R += SHCoeffsR;
-	//G += SHCoeffsG;
-	//B += SHCoeffsB;
-	//V += SHCoeffGV;
-	//
-	//imageStore(LPVGridR_, v2f_volumeCellIndex, R);
-	//memoryBarrierImage();
-	//imageStore(LPVGridG_, v2f_volumeCellIndex, G);
-	//memoryBarrierImage();
-	//imageStore(LPVGridB_, v2f_volumeCellIndex, B);
-	//memoryBarrierImage();
-	//imageStore(GeometryVolume_, v2f_volumeCellIndex, V);
-	//memoryBarrierImage();
+	R += SHCoeffsR;
+	G += SHCoeffsG;
+	B += SHCoeffsB;
+	V += SHCoeffGV;
+	
+	imageStore(LPVGridR_, v2f_volumeCellIndex, R);
+	imageStore(LPVGridG_, v2f_volumeCellIndex, G);
+	imageStore(LPVGridB_, v2f_volumeCellIndex, B);
+	imageStore(GeometryVolume_, v2f_volumeCellIndex, V);
 
-	imageAtomicAdd(LPVGridR_,v2f_volumeCellIndex, f16vec4(SHCoeffsR));
-	imageAtomicAdd(LPVGridG_,v2f_volumeCellIndex, f16vec4(SHCoeffsG));
-	imageAtomicAdd(LPVGridB_,v2f_volumeCellIndex, f16vec4(SHCoeffsB));
-	imageAtomicAdd(GeometryVolume_, v2f_volumeCellIndex, f16vec4(SHCoeffGV));
+	groupMemoryBarrier();
+	memoryBarrierImage();
+
+	//imageAtomicAdd(LPVGridR_,v2f_volumeCellIndex, f16vec4(SHCoeffsR));
+	//imageAtomicAdd(LPVGridG_,v2f_volumeCellIndex, f16vec4(SHCoeffsG));
+	//imageAtomicAdd(LPVGridB_,v2f_volumeCellIndex, f16vec4(SHCoeffsB));
+	//imageAtomicAdd(GeometryVolume_, v2f_volumeCellIndex, f16vec4(SHCoeffGV));
+
+	//imageAtomicAdd(LPVGridR_,v2f_volumeCellIndex, SHCoeffsR);
+	//imageAtomicAdd(LPVGridG_,v2f_volumeCellIndex, SHCoeffsG);
+	//imageAtomicAdd(LPVGridB_,v2f_volumeCellIndex, SHCoeffsB);
+	//imageAtomicAdd(GeometryVolume_, v2f_volumeCellIndex, SHCoeffGV);
 
 
 }

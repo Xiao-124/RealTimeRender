@@ -47,6 +47,7 @@ void GBufferPass::initV()
 
 void GBufferPass::updateV()
 {
+
 	glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -55,6 +56,8 @@ void GBufferPass::updateV()
 	glCullFace(GL_BACK);
 
 	m_pShader->activeShader();
+	m_pShader->setFloatUniformValue("u_Near", ElayGraphics::Camera::getMainCameraNear());
+	m_pShader->setFloatUniformValue("u_Far", ElayGraphics::Camera::getMainCameraFar());
 	m_pShader->setMat4UniformValue("u_TransposeInverseViewModelMatrix", glm::value_ptr(glm::transpose(glm::inverse(ElayGraphics::Camera::getMainCameraViewMatrix() *  m_pSponza->getModelMatrix()))));
 	m_pSponza->updateModel(*m_pShader);
 

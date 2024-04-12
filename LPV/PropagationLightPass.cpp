@@ -70,7 +70,7 @@ void CPropagationLightPass::initV()
 //Function:
 void CPropagationLightPass::updateV()
 {
-
+	
 	ClearTexture(m_TextureConfig4LPVAccumulatorR, GL_TEXTURE_3D);
 	ClearTexture(m_TextureConfig4LPVAccumulatorG, GL_TEXTURE_3D);
 	ClearTexture(m_TextureConfig4LPVAccumulatorB, GL_TEXTURE_3D);
@@ -82,5 +82,7 @@ void CPropagationLightPass::updateV()
 
 	glDispatchCompute(DispatchX, DispatchY, DispatchZ);
 	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+
+	
 
 }

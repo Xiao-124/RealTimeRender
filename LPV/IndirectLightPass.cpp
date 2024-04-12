@@ -42,6 +42,7 @@ void CIndirectLightPass::initV()
 
 void CIndirectLightPass::updateV()
 {
+	
 	glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -51,9 +52,7 @@ void CIndirectLightPass::updateV()
 	m_pShader->setMat4UniformValue("u_InverseCameraViewMatrix", glm::value_ptr(glm::inverse(ViewMatrix)));
 	auto LightDir = ElayGraphics::ResourceManager::getSharedDataByName<glm::vec3>("LightDir");
 
-
 	drawQuad();
-
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
+	
 }

@@ -87,5 +87,7 @@ void CRSMBufferPass::updateV()
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_DEPTH_TEST);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	
 	
 }
