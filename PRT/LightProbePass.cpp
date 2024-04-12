@@ -174,15 +174,19 @@ void CLightProbePass::updateV()
 			for (int k = m_MinAABB.z; k < m_MaxAABB.z; k += step_probe)
 			{
 				surfelSampleCS->activeShader();
+				glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, surfelBuffer);
+
 				glm::vec3 _probePos = glm::vec3((i + step_probe) * 0.5, (j + step_probe) * 0.5, (k + step_probe) * 0.5);
 				surfelSampleCS->setFloatUniformValue("_probePos", _probePos[0], _probePos[1], _probePos[2], 1);
 
-				surfelSampleCS->setFloatUniformValue("_randSeed", rand() /(float)(RAND_MAX));
+				float _randSeed = rand() / (float)(RAND_MAX);
+				surfelSampleCS->setFloatUniformValue("_randSeed", _randSeed);
 
 				surfelSampleCS->setTextureUniformValue("_worldPosCubemap", m_TextureConfig4Position[Index]);
 				surfelSampleCS->setTextureUniformValue("_normalCubemap", m_TextureConfig4Normals[Index]);
 				surfelSampleCS->setTextureUniformValue("_albedoCubemap", m_TextureConfig4Albedos[Index]);
 				glDispatchCompute(1, 1, 1);
+				glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 				glFlush();
 
 				glBindBuffer(GL_SHADER_STORAGE_BUFFER, surfelBuffer);

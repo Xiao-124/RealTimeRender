@@ -18,5 +18,5 @@ private:
 	glm::mat4 m_LightViewMatrix;
 	glm::mat4 m_LightProjectionMatrix;
 	float m_Exposure = 2.0f;
-	float m_CameraSizeExtent = 3.0;// 0.25f;
+	float m_CameraSizeExtent = 10.0;// 0.25f;
 }; 

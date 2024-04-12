@@ -30,9 +30,6 @@
     <ClCompile Include="ReLightProbePass.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="ModelRenderPass.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="GBufferPass.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -43,6 +40,15 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="LightCamera.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectLightPass.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="IndirectLightPass.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="ScreenQuadPass.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -56,9 +62,6 @@
     <ClInclude Include="ReLightProbePass.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="ModelRenderPass.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="GBufferPass.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -69,6 +72,15 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="LightCamera.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectLightPass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="IndirectLightPass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ScreenQuadPass.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -85,12 +97,6 @@
     <None Include="SurfelLight_CS.glsl">
       <Filter>Shader</Filter>
     </None>
-    <None Include="ModelRender_VS.glsl">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="ModelRender_FS.glsl">
-      <Filter>Shader</Filter>
-    </None>
     <None Include="GBuffer_VS.glsl">
       <Filter>Shader</Filter>
     </None>
@@ -101,6 +107,21 @@
       <Filter>Shader</Filter>
     </None>
     <None Include="RSMBuffer_FS.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="DirectLightPass_CS.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="IndirectLightPass_VS.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="IndirectLightPass_FS.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="ScreenQuad_VS.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="ScreenQuad_FS.glsl">
       <Filter>Shader</Filter>
     </None>
   </ItemGroup>
