@@ -145,7 +145,6 @@
     <None Include="PostProcess_FS.glsl" />
     <None Include="PostProcess_VS.glsl" />
     <None Include="RenderCameraVolume_FS.glsl" />
-    <None Include="RenderCameraVolume_GS.glsl" />
     <None Include="RenderCameraVolume_VS.glsl" />
     <None Include="RenderRayMarching_FS.glsl" />
     <None Include="RenderRayMarching_VS.glsl" />

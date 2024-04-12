@@ -54,15 +54,6 @@ vec3 IrradianceSH9(in vec3 c[9], in vec3 dir)
     return irradiance;
 }
 
-#define FIXED_SCALE 100000.0
-int EncodeFloatToInt(float x)
-{
-    return int(x * FIXED_SCALE);
-}
-float DecodeFloatFromInt(int x)
-{
-    return float(x) / FIXED_SCALE;
-}
 
 struct Surfel
 {
@@ -80,14 +71,7 @@ layout(binding=0, std430) readonly buffer SurfelBuffer
 };
 
 
-// 使用定点数存储小数, 因为 compute shader 的 InterlockedAdd 不支持 float
-// array size: 3x9=27
-layout(binding=1, std430) writeonly buffer SHBuffer 
-{
-	int _coefficientSH9[];
-};
-
-layout(binding=2, std430) writeonly buffer SHBuffer_Float 
+layout(binding=1, std430) writeonly buffer SHBuffer_Float 
 {
 	float _coefficientSH9Float[];
 };
@@ -163,10 +147,11 @@ void main ()
 
     vec4 fragPosLightSpace = u_LightVPMatrix * WorldPos;
     float Visibility4DirectLight = ShadowCalculation(fragPosLightSpace, surfel.normal, ldir);
-    Visibility4DirectLight = 1.0;
+    //Visibility4DirectLight = 1.0;
 
     // radiance from light
     float NdotL = saturate(dot(surfel.normal, ldir));
+    //vec3 radiance = surfel.albedo  * NdotL * Visibility4DirectLight;
     vec3 radiance = surfel.albedo  * NdotL * Visibility4DirectLight;
 
     // direction from probe to surfel
@@ -179,15 +164,15 @@ void main ()
     // SH projection
     const float N = 32 * 16;
     vec3 c[9];
-    c[0] = SH(0,  0, dir) * radiance * 4.0 * PI / N;
-    c[1] = SH(1, -1, dir) * radiance * 4.0 * PI / N;
-    c[2] = SH(1,  0, dir) * radiance * 4.0 * PI / N;
-    c[3] = SH(1,  1, dir) * radiance * 4.0 * PI / N;
-    c[4] = SH(2, -2, dir) * radiance * 4.0 * PI / N;
-    c[5] = SH(2, -1, dir) * radiance * 4.0 * PI / N;
-    c[6] = SH(2,  0, dir) * radiance * 4.0 * PI / N;
-    c[7] = SH(2,  1, dir) * radiance * 4.0 * PI / N;
-    c[8] = SH(2,  2, dir) * radiance * 4.0 * PI / N;
+    c[0] = SH(0,  0, dir) * radiance * 3.f/2/PI*sin(2*PI/3);
+    c[1] = SH(1, -1, dir) * radiance * 3.f/2/PI*sin(2*PI/3);
+    c[2] = SH(1,  0, dir) * radiance * 3.f/2/PI*sin(2*PI/3);
+    c[3] = SH(1,  1, dir) * radiance * 3.f/2/PI*sin(2*PI/3);
+    c[4] = SH(2, -2, dir) * radiance * 3.f/2/PI*sin(2*PI/3);
+    c[5] = SH(2, -1, dir) * radiance * 3.f/2/PI*sin(2*PI/3);
+    c[6] = SH(2,  0, dir) * radiance * 3.f/2/PI*sin(2*PI/3);
+    c[7] = SH(2,  1, dir) * radiance * 3.f/2/PI*sin(2*PI/3);
+    c[8] = SH(2,  2, dir) * radiance * 3.f/2/PI*sin(2*PI/3);
 
     for(int i=0; i<9; i++)
     {
@@ -206,7 +191,7 @@ void main ()
             {
                 coSH9[tid*9 + i]  += coSH9[ (tid+s) * 9 + i];
             }
-
+    
         }
         groupMemoryBarrier();
         memoryBarrierShared();
@@ -214,12 +199,6 @@ void main ()
     }  
 
     // atom write result to buffer
-    for(int i=0; i<9; i++)
-    {
-        atomicAdd(_coefficientSH9[shoffset + i*3+0], EncodeFloatToInt(c[i].x));
-        atomicAdd(_coefficientSH9[shoffset + i*3+1], EncodeFloatToInt(c[i].y));
-        atomicAdd(_coefficientSH9[shoffset + i*3+2], EncodeFloatToInt(c[i].z));
-    }
 
 
     for(int i=0; i<9; i++)

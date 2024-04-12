@@ -15,7 +15,6 @@ public:
 	virtual void initV();
 	virtual void updateV();
 private:
-	GLuint shBuffer;
 	GLuint shBufferFloat;
 	GLuint surfelBuffer;
 	std::shared_ptr<SHData> shDatas;

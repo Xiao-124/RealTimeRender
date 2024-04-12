@@ -360,7 +360,7 @@ MediumSampleRGB sampleMediumRGB(in vec3 WorldPos, in AtmosphereParameters Atmosp
 SingleScatteringResult IntegrateScatteredLuminance(
 	in vec2 pixPos, in vec3 WorldPos, in vec3 WorldDir, in vec3 SunDir, in AtmosphereParameters Atmosphere,
 	in bool ground, in float SampleCountIni, in float DepthBufferValue, in bool VariableSampleCount,
-	in bool MieRayPhase, in float tMaxMax = 9000000.0f)
+	in bool MieRayPhase, in float tMaxMax)
 {
 	//const bool debugEnabled = all(uint2(pixPos.xx) == gMouseLastDownPos.xx) && uint(pixPos.y) % 10 == 0 && DepthBufferValue != -1.0f;
 	SingleScatteringResult result;
@@ -653,7 +653,7 @@ void main()
 		WorldDir.x = cosTheta * sinPhi;
 		WorldDir.y = sinTheta * sinPhi;
 		WorldDir.z = cosPhi;
-		SingleScatteringResult result = IntegrateScatteredLuminance(pixPos, WorldPos, WorldDir, sunDir, Atmosphere, ground, SampleCountIni, DepthBufferValue, VariableSampleCount, MieRayPhase);
+		SingleScatteringResult result = IntegrateScatteredLuminance(pixPos, WorldPos, WorldDir, sunDir, Atmosphere, ground, SampleCountIni, DepthBufferValue, VariableSampleCount, MieRayPhase,  9000000.0f);
 		
 		MultiScatAs1SharedMem[ThreadId.z] = result.MultiScatAs1 * SphereSolidAngle / (sqrtSample * sqrtSample);
 		LSharedMem[ThreadId.z] = result.L * SphereSolidAngle / (sqrtSample * sqrtSample);
@@ -670,10 +670,7 @@ void main()
 		MultiScatAs1SharedMem[ThreadId.z] += MultiScatAs1SharedMem[ThreadId.z + 32];
 		LSharedMem[ThreadId.z] += LSharedMem[ThreadId.z + 32];
 	}
-	else
-	{
-		return;
-	}
+
 	groupMemoryBarrier();
 	memoryBarrierShared();
 	barrier();
@@ -685,10 +682,7 @@ void main()
 		MultiScatAs1SharedMem[ThreadId.z] += MultiScatAs1SharedMem[ThreadId.z + 16];
 		LSharedMem[ThreadId.z] += LSharedMem[ThreadId.z + 16];
 	}
-	else
-	{
-		return;
-	}
+
 	groupMemoryBarrier();
 	memoryBarrierShared();
 	barrier();
@@ -699,10 +693,7 @@ void main()
 		MultiScatAs1SharedMem[ThreadId.z] += MultiScatAs1SharedMem[ThreadId.z + 8];
 		LSharedMem[ThreadId.z] += LSharedMem[ThreadId.z + 8];
 	}
-	else
-	{
-		return;
-	}
+
 	groupMemoryBarrier();
 	memoryBarrierShared();
 	barrier();
@@ -713,10 +704,7 @@ void main()
 		MultiScatAs1SharedMem[ThreadId.z] += MultiScatAs1SharedMem[ThreadId.z + 4];
 		LSharedMem[ThreadId.z] += LSharedMem[ThreadId.z + 4];
 	}
-	else
-	{
-		return;
-	}	
+
 	groupMemoryBarrier();
 	memoryBarrierShared();
 	barrier();
@@ -725,10 +713,6 @@ void main()
 	{
 		MultiScatAs1SharedMem[ThreadId.z] += MultiScatAs1SharedMem[ThreadId.z + 2];
 		LSharedMem[ThreadId.z] += LSharedMem[ThreadId.z + 2];
-	}
-	else
-	{
-		return;
 	}
 	groupMemoryBarrier();
 	memoryBarrierShared();
@@ -739,10 +723,6 @@ void main()
 	{
 		MultiScatAs1SharedMem[ThreadId.z] += MultiScatAs1SharedMem[ThreadId.z + 1];
 		LSharedMem[ThreadId.z] += LSharedMem[ThreadId.z + 1];
-	}
-	else
-	{
-		return;
 	}
 	groupMemoryBarrier();
 	memoryBarrierShared();

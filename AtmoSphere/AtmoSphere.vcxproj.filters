@@ -70,9 +70,6 @@
     <None Include="RenderCameraVolume_VS.glsl">
       <Filter>Shader</Filter>
     </None>
-    <None Include="RenderCameraVolume_GS.glsl">
-      <Filter>Shader</Filter>
-    </None>
     <None Include="RenderRayMarching_VS.glsl">
       <Filter>Shader</Filter>
     </None>

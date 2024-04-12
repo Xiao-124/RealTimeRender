@@ -74,7 +74,6 @@ void CIndirectLightPass::updateV()
 	m_pShader->setFloatUniformValue("_coefficientVoxelSize", _coefficientVoxelSize.x, _coefficientVoxelSize.y, _coefficientVoxelSize.z, 1.0);
 	
 	auto shDatas = ElayGraphics::ResourceManager::getSharedDataByName<std::shared_ptr<SHData>>("shDatas");
-	GLuint shBuffer = ElayGraphics::ResourceManager::getSharedDataByName<GLuint>("AllshBuffer");
 	drawQuad();
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);

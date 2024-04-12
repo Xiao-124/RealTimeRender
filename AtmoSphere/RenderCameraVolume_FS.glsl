@@ -4,7 +4,7 @@
 #define saturate(x)        clamp(x, 0.0, 1.0) 
 #define PI 3.141592653
 #define PLANET_RADIUS_OFFSET 0.01f
-#define MULTISCATAPPROX_ENABLED 0
+#define MULTISCATAPPROX_ENABLED 1
 #define AP_SLICE_COUNT 32.0f
 #define AP_KM_PER_SLICE 4.0f
 
@@ -536,7 +536,7 @@ bool MoveToTopAtmosphere(inout vec3 WorldPos, in vec3 WorldDir, in float Atmosph
 SingleScatteringResult IntegrateScatteredLuminance(
 	in vec2 pixPos, in vec3 WorldPos, in vec3 WorldDir, in vec3 SunDir, in AtmosphereParameters Atmosphere,
 	in bool ground, in float SampleCountIni, in float DepthBufferValue, in bool VariableSampleCount,
-	in bool MieRayPhase, in float tMaxMax = 9000000.0f)
+	in bool MieRayPhase, in float tMaxMax)
 {
 	//const bool debugEnabled = all(uint2(pixPos.xx) == gMouseLastDownPos.xx) && uint(pixPos.y) % 10 == 0 && DepthBufferValue != -1.0f;
 	SingleScatteringResult result;

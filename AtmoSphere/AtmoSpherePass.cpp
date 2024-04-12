@@ -138,7 +138,7 @@ void AtmoSpherePass::initV()
 	TransmittanceShader = std::make_shared<CShader>("RenderTransmittanceLut_VS.glsl", "RenderTransmittanceLut_FS.glsl");
 	multiScatterShader = std::make_shared<CShader>("NewMultiScatt_CS.glsl");
 	skyLutShader = std::make_shared<CShader>("SkyViewLut_VS.glsl", "SkyViewLut_FS.glsl");
-	cameraVolumeShader = std::make_shared<CShader>("RenderCameraVolume_VS.glsl",  "RenderCameraVolume_FS.glsl", "RenderCameraVolume_GS.glsl");
+	cameraVolumeShader = std::make_shared<CShader>("RenderCameraVolume_VS.glsl",  "RenderCameraVolume_FS.glsl");
 	rayMarchingShader = std::make_shared<CShader>("RenderRayMarching_VS.glsl", "RenderRayMarching_FS.glsl");
 	postShader = std::make_shared<CShader>("PostProcess_VS.glsl", "PostProcess_FS.glsl");
 	terrianShader = std::make_shared<CShader>("RenderTerrain_VS.glsl", "RenderTerrain_FS.glsl");
@@ -411,7 +411,6 @@ void AtmoSpherePass::renderCameraVolume()
 		drawQuad();
 		glFlush();
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
 		glDeleteFramebuffers(1, &tempFBO);
 	}
 	glFlush();
@@ -444,6 +443,7 @@ void AtmoSpherePass::updateV()
 	renderTerrian();
 	renderTransmittanceLut();
 	renderMultiScatter();
+
 	renderSkyLut();
 	renderCameraVolume();
 	renderRayMarching();

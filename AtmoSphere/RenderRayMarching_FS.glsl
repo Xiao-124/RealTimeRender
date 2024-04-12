@@ -540,7 +540,7 @@ bool MoveToTopAtmosphere(inout vec3 WorldPos, in vec3 WorldDir, in float Atmosph
 SingleScatteringResult IntegrateScatteredLuminance(
 	in vec2 pixPos, in vec3 WorldPos, in vec3 WorldDir, in vec3 SunDir, in AtmosphereParameters Atmosphere,
 	in bool ground, in float SampleCountIni, in float DepthBufferValue, in bool VariableSampleCount,
-	in bool MieRayPhase, in float tMaxMax = 9000000.0f)
+	in bool MieRayPhase, in float tMaxMax)
 {
 	//const bool debugEnabled = all(uint2(pixPos.xx) == gMouseLastDownPos.xx) && uint(pixPos.y) % 10 == 0 && DepthBufferValue != -1.0f;
 	SingleScatteringResult result;
@@ -899,7 +899,7 @@ void main()
 	const float SampleCountIni = 0.0f;
 	const bool VariableSampleCount = true;
 	const bool MieRayPhase = true;
-	SingleScatteringResult ss = IntegrateScatteredLuminance(pixPos, WorldPos, WorldDir, sun_direction, Atmosphere, ground, SampleCountIni, DepthBufferValue, VariableSampleCount, MieRayPhase);
+	SingleScatteringResult ss = IntegrateScatteredLuminance(pixPos, WorldPos, WorldDir, sun_direction, Atmosphere, ground, SampleCountIni, DepthBufferValue, VariableSampleCount, MieRayPhase, 9000000.0f);
 
 	L += ss.L;
 	vec3 throughput = ss.Transmittance;

@@ -18,12 +18,8 @@ uniform vec4 _coefficientVoxelCorner;
 uniform vec4 _coefficientVoxelSize;
 uniform float _GIIntensity;
 
-layout(binding=1, std430) readonly buffer SHBuffer 
-{
-	int _coefficientSH9[];
-};
 
-layout(binding=2, std430) readonly buffer SHBuffer_Float 
+layout(binding=1, std430) readonly buffer SHBuffer_Float 
 {
 	float _coefficientSH9Float[];
 };
@@ -78,16 +74,6 @@ vec3 IrradianceSH9(in vec3 c[9], in vec3 dir)
     return irradiance;
 }
 
-#define FIXED_SCALE 100000.0
-int EncodeFloatToInt(float x)
-{
-    return int(x * FIXED_SCALE);
-}
-
-float DecodeFloatFromInt(int x)
-{
-    return float(x) / FIXED_SCALE;
-}
 
 
 ivec3 GetProbeIndex3DFromWorldPos(vec3 worldPos, vec4 _coefficientVoxelSize, float _coefficientVoxelGridSize, vec4 _coefficientVoxelCorner)
@@ -112,18 +98,6 @@ bool IsIndex3DInsideVoxel(ivec3 probeIndex3, vec4 _coefficientVoxelSize)
     bool isInsideVoxelZ = 0 <= probeIndex3.z && probeIndex3.z < _coefficientVoxelSize.z;
     bool isInsideVoxel = isInsideVoxelX && isInsideVoxelY && isInsideVoxelZ;
     return isInsideVoxel;
-}
-
-void DecodeSHCoefficientFromVoxel(inout vec3 c[9], int probeIndex)
-{
-    const int coefficientByteSize = 27; // 3x9 for SH9 RGB
-    int offset = probeIndex * coefficientByteSize;   
-    for(int i=0; i<9; i++)
-    {
-        c[i].x = DecodeFloatFromInt(_coefficientSH9[offset + i*3+0]);
-        c[i].y = DecodeFloatFromInt(_coefficientSH9[offset + i*3+1]);
-        c[i].z = DecodeFloatFromInt(_coefficientSH9[offset + i*3+2]);
-    }
 }
 
 

@@ -46,15 +46,13 @@ void CReLightProbePass::initV()
 	{
 		shDatas->all_coefficientSH9[i].resize(27);
 	}
-	shBuffer = genBuffer(GL_SHADER_STORAGE_BUFFER, 27 * sizeof(int)* all_num, &cleanData[0], GL_STATIC_DRAW, 1);
-	ElayGraphics::ResourceManager::registerSharedData("AllshBuffer", shBuffer);
 
 	//shDatas = std::make_shared<SHData>();
 	//shDatas->all_coefficientSH9.resize(suefelDatas->all_surfelData.size());
 
 	std::vector<float> cleanDataFloat(27 * all_num, 0);
 	shBufferFloat = genBuffer(GL_SHADER_STORAGE_BUFFER, 27 * sizeof(float) * all_num, &cleanData[0], GL_STATIC_DRAW, 2);
-	ElayGraphics::ResourceManager::registerSharedData("AllshBufferFloat", shBuffer);
+	ElayGraphics::ResourceManager::registerSharedData("AllshBufferFloat", shBufferFloat);
 
 
 	ElayGraphics::ResourceManager::registerSharedData("shDatas", shDatas);
@@ -111,12 +109,11 @@ void CReLightProbePass::updateV()
 
 	auto LightDir = ElayGraphics::ResourceManager::getSharedDataByName<glm::vec3>("LightDir");
 	int all_num = shDatas->all_coefficientSH9.size();
-	std::vector<int> cleanData(27 * all_num, 0);
-	updateSSBOBuffer(shBuffer, 27 * sizeof(int) * all_num, &cleanData[0], GL_STATIC_DRAW);
+	std::vector<float> cleanData(27 * all_num, 0);
+	updateSSBOBuffer(shBufferFloat, 27 * sizeof(float) * all_num, &cleanData[0], GL_STATIC_DRAW);
 	m_pShader->activeShader();
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, surfelBuffer);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, shBuffer);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, shBufferFloat);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, shBufferFloat);
 	m_pShader->setFloatUniformValue("lightDirection", -LightDir[0], -LightDir[1], -LightDir[2]);
 	m_pShader->setMat4UniformValue("u_LightVPMatrix", glm::value_ptr(LightProjectionMatrix * LightViewMatrix));
 	//ด๓ะก
