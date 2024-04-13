@@ -134,6 +134,9 @@
     <None Include="LightInject_GS.glsl" />
     <None Include="LightInject_VS.glsl" />
     <None Include="PropagationLight_CS.glsl" />
+    <None Include="PropagationLight_FS.glsl" />
+    <None Include="PropagationLight_GS.glsl" />
+    <None Include="PropagationLight_VS.glsl" />
     <None Include="RSMBuffer_FS.glsl" />
     <None Include="RSMBuffer_VS.glsl" />
     <None Include="ScreenQuad_FS.glsl" />

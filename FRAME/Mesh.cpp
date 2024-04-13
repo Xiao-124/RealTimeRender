@@ -40,8 +40,11 @@ GLvoid CMesh::update(const CShader& vShader) const
 	{
 		for (int i = 0; i < m_Textures.size(); ++i)
 		{
-			glActiveTexture(GL_TEXTURE0 + i);
-			glBindTexture(GL_TEXTURE_2D, m_Textures[i].ID);
+			glActiveTexture(GL_TEXTURE0 + i);			
+			if (m_Textures[i].ID != -1)
+			{
+				glBindTexture(GL_TEXTURE_2D, m_Textures[i].ID);
+			}
 		}
 	}
 	else

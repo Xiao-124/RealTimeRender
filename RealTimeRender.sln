@@ -20,6 +20,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PRT", "PRT\PRT.vcxproj", "{EBCCBAD5-12C6-406E-B7C0-E45766311993}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LPV", "LPV\LPV.vcxproj", "{F8B5E982-E4CD-F437-4D9D-D4FC39D4D76A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{30C91F0D-9CDD-47BE-655F-EB1DD13244EF} = {30C91F0D-9CDD-47BE-655F-EB1DD13244EF}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

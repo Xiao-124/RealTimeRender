@@ -103,6 +103,7 @@ void main()
 
 		vec4 mainDirectionCosineLobeSH = evalCosineLobeToDir(mainDirection);
 		vec4 mainDirectionSH = evalSH_direct(mainDirection);
+
 		cR += occludedDirectFaceContribution * max(0.0, dot(RSHcoeffsNeighbour, mainDirectionCosineLobeSH)) * mainDirectionSH;
 		cG += occludedDirectFaceContribution * max(0.0, dot(GSHcoeffsNeighbour, mainDirectionCosineLobeSH)) * mainDirectionSH;
 		cB += occludedDirectFaceContribution * max(0.0, dot(BSHcoeffsNeighbour, mainDirectionCosineLobeSH)) * mainDirectionSH;
@@ -127,6 +128,8 @@ void main()
 	//imageAtomicAdd(RAccumulatorLPV_, v2f_volumeCellIndex, f16vec4(cR / PI));
 	//imageAtomicAdd(GAccumulatorLPV_, v2f_volumeCellIndex, f16vec4(cG / PI));
 	//imageAtomicAdd(BAccumulatorLPV_, v2f_volumeCellIndex, f16vec4(cB / PI));
+
+	//还有累计传播的细节需要实现。
 
 	imageStore(RAccumulatorLPV_, v2f_volumeCellIndex, cR / PI);
 	imageStore(GAccumulatorLPV_, v2f_volumeCellIndex, cG / PI);
