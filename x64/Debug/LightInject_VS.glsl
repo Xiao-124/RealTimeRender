@@ -47,7 +47,7 @@ void main()
 
 	vec2 ndc = (vec2(cellIndex.xy)+ 0.5) / u_Dimensions.xy * 2.0 - 1.0;
 
-	gl_Position = vec4(ndc,0.0,1.0);
+	gl_Position = vec4(ndc, 0.0, 1.0);
 	//gl_Position = vec4(aPosition, 0.0, 1.0);
 	//gl_Position = vec4(0.5f, 0.5f, 0.0f, 1.0f);
 	gl_PointSize = 1.0;

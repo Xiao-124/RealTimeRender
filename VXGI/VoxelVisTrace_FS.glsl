@@ -1,0 +1,55 @@
+#version 430 core
+
+#define STEP_LENGTH 0.005f
+#define INV_STEP_LENGTH (1.0f/STEP_LENGTH)
+
+
+uniform sampler2D textureBack; // Unit cube back FBO.
+uniform sampler2D textureFront; // Unit cube front FBO.
+uniform sampler3D textureColor; // Texture in which voxelization is stored.
+
+uniform vec3 cameraPosition; // World camera position.
+uniform float u_VoxelScale;
+in  vec2 v2f_TexCoords;
+
+out vec4 color;
+
+vec4 convRGBA8ToVec4(uint val)
+{
+	return vec4(float((val & 0x000000FF)), float((val & 0x0000FF00) >> 8U), float((val & 0x00FF0000) >> 16U), float((val & 0xFF000000) >> 24U));
+}
+// Scales and bias a given vector (i.e. from [-1, 1] to [0, 1]).
+vec3 scaleAndBias(vec3 p) { return 0.5f * p + vec3(0.5f); }
+
+// Returns true if p is inside the unity cube (+ e) centered on (0, 0, 0).
+bool isInsideCube(vec3 p, float e) { return abs(p.x) < 1 + e && abs(p.y) < 1 + e && abs(p.z) < 1 + e; }
+
+void main()
+{
+	const float mipmapLevel = 0;
+
+	// Initialize ray.
+	vec3 origin = isInsideCube(cameraPosition, 0.2f) ? 
+		cameraPosition : texture(textureFront, v2f_TexCoords).xyz;
+
+	vec3 direction = texture(textureBack, v2f_TexCoords).xyz - origin;
+	const uint numberOfSteps = uint(INV_STEP_LENGTH * length(direction));
+	direction = normalize(direction);
+
+	// Trace.
+	color = vec4(0.0f);
+	for(uint step = 0; step < numberOfSteps && color.a < 0.99f; ++step) 
+	{
+		const vec3 currentPoint = origin + STEP_LENGTH * step * direction;
+		vec3 coordinate = scaleAndBias(currentPoint);
+
+		vec4 currentSample = textureLod(textureColor, scaleAndBias(currentPoint), mipmapLevel);
+		//uint value = textureLod(textureColor, scaleAndBias(currentPoint), mipmapLevel).r;
+		//vec4 currentSample = convRGBA8ToVec4(value);
+		color += (1.0f - color.a) * currentSample;
+	} 
+	//color.rgb = pow(color.rgb, vec3(1.0 / 2.2));
+	//color.a = 1.0f;
+
+	//color.rgb = texture(textureColor, vec3(v2f_TexCoords, 0.5) ).rgb;
+}

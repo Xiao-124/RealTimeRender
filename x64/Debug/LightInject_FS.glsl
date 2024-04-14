@@ -29,12 +29,8 @@ void main()
 {
 
  // if(length(fs_in.Normal)<0.01) discard;
-  
   LPVGridR = (fs_in.flux.r/PI)*evalSH(fs_in.Normal);
   LPVGridG = (fs_in.flux.g/PI)*evalSH(fs_in.Normal);
   LPVGridB = (fs_in.flux.b/PI)*evalSH(fs_in.Normal);
 
-  //LPVGridR = vec4(3);
-  //LPVGridG = vec4(3);
-  //LPVGridB = vec4(3);
 }
