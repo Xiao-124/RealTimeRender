@@ -21,6 +21,8 @@ void CCustomGUI::updateV()
 {
 
 	checkBox("useIndirect", useIndirect);
+	sliderFloat("LightIntensity", &m_Intensity, 0, 100);
+
 	glm::vec3 MinLightPos = glm::vec3(-1000), MaxLightPos = glm::vec3(1000);
 	float LightPosDragSpeed = 0.01f;
 	if (IGUI::dragScalarN("LightPos", ElayGraphics::EDataType::DataType_Float, &m_LightPos, 3, LightPosDragSpeed, &MinLightPos, &MaxLightPos))
@@ -29,6 +31,7 @@ void CCustomGUI::updateV()
 	
 	directionWidget("LightDir", &m_LightDir[0]);
 
+	ElayGraphics::ResourceManager::updateSharedDataByName("LightIntensity", m_Intensity);
 	ElayGraphics::ResourceManager::updateSharedDataByName("LightDir", normalize(m_LightDir));
 	ElayGraphics::ResourceManager::updateSharedDataByName("useIndirect", useIndirect);
 

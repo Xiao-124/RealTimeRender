@@ -47,7 +47,7 @@ void main()
 	int Index = GetProbeIndex1DFromIndex3D(ivec3(probeIndex3), _coefficientVoxelSize);
 	instanceID = gl_InstanceID;
 
-	Index = 0;
+	//Index = 0;
 	float skyMask = _surfels[Index * 256 + instanceID].skyMask;
 
 	if(abs(skyMask - 1.0f) <= 0.001)

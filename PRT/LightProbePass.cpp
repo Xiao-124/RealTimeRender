@@ -8,11 +8,10 @@
 #include <GLM/gtc/type_ptr.hpp>
 
 
-
-
-
 CLightProbePass::CLightProbePass(const std::string& vPassName, int vExcutionOrder, ElayGraphics::ERenderPassType vtype) : IRenderPass(vPassName, vExcutionOrder, vtype)
 {
+
+
 }
 
 CLightProbePass::~CLightProbePass()
@@ -91,7 +90,6 @@ void CLightProbePass::initV()
 				m_TextureConfig4Chebyshevs.push_back(TextureConfig4Chebyshev);
 				auto FBO = genFBO({ TextureConfig4Position, TextureConfig4Albedo, TextureConfig4Normal,TextureConfig4Chebyshev, TextureConfig4Depth });
 
-
 				m_FBOs.push_back(FBO);
 			}
 		}
@@ -111,10 +109,10 @@ void CLightProbePass::initV()
 	ElayGraphics::ResourceManager::registerSharedData("SurfelDatas", surfelDatas);
 	ElayGraphics::ResourceManager::registerSharedData("BakeResolution", m_BakeResolution);
 
-	ElayGraphics::ResourceManager::registerSharedData("BakePositionTextures", m_TextureConfig4Position);
-	ElayGraphics::ResourceManager::registerSharedData("BakeAlbedoTextures", m_TextureConfig4Albedos);
-	ElayGraphics::ResourceManager::registerSharedData("BakeNormalTextures", m_TextureConfig4Normals);
-	ElayGraphics::ResourceManager::registerSharedData("BakeChebyshevsTextures", m_TextureConfig4Chebyshevs);
+	//ElayGraphics::ResourceManager::registerSharedData("BakePositionTextures", m_TextureConfig4Position);
+	//ElayGraphics::ResourceManager::registerSharedData("BakeAlbedoTextures", m_TextureConfig4Albedos);
+	//ElayGraphics::ResourceManager::registerSharedData("BakeNormalTextures", m_TextureConfig4Normals);
+	//ElayGraphics::ResourceManager::registerSharedData("BakeChebyshevsTextures", m_TextureConfig4Chebyshevs);
 	ElayGraphics::ResourceManager::registerSharedData("step_probe", step_probe);
 
 	m_pShader->activeShader();
@@ -126,17 +124,13 @@ void CLightProbePass::initV()
 
 void CLightProbePass::updateV()
 {
-
 	int Index = 0;
-	
 	for (int i = m_MinAABB.x; i < m_MaxAABB.x; i += step_probe)
 	{
 		for (int j = m_MinAABB.y; j < m_MaxAABB.y; j += step_probe)
 		{
 			for (int k = m_MinAABB.z; k < m_MaxAABB.z; k += step_probe)
-			{
-
-				
+			{				
 				glBindFramebuffer(GL_FRAMEBUFFER, m_FBOs[Index]);
 				glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -213,5 +207,28 @@ void CLightProbePass::updateV()
 	}
 	int f = sizeof(Surfel);
 	int surfelSize = 16 * 16 * sizeof(Surfel)* (Index);
+
+
+
+
+	for (int i = 0; i < m_TextureConfig4Position.size(); i++)
+	{
+		GLuint tId = (m_TextureConfig4Position[i]->TextureID);
+		glDeleteTextures(1, &tId);
+
+		tId = (m_TextureConfig4Albedos[i]->TextureID);
+		glDeleteTextures(1, &tId);
+
+		tId = (m_TextureConfig4Normals[i]->TextureID);
+		glDeleteTextures(1, &tId);
+
+		tId = (m_TextureConfig4Depths[i]->TextureID);
+		glDeleteTextures(1, &tId);
+
+		tId = (m_TextureConfig4Chebyshevs[i]->TextureID);
+		glDeleteTextures(1, &tId);
+
+	}
+
 
 }

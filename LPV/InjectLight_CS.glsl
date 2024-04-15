@@ -78,7 +78,7 @@ void main()
 	
 	//¹âÏß×¢Èë
 	ivec2 RSMCoords = ivec2(gl_GlobalInvocationID.xy);
-	vec3 v2f_posFromRSM = texelFetch(u_RSMPositionTexture, RSMCoords,0).rgb;
+	vec3 v2f_posFromRSM = texelFetch(u_RSMPositionTexture, RSMCoords, 0).rgb;
 	vec3 v2f_normalFromRSM = texelFetch(u_RSMNormalTexture, RSMCoords,0).rgb;
 	vec4 v2f_fluxFromRSM = texelFetch(u_RSMRadiantFluxTexture, RSMCoords,0);
 

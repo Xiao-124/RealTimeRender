@@ -17,5 +17,5 @@ public:
 private:
 	std::shared_ptr<CSponza> m_pSponza;
 	int m_FBO = -1;
-	int m_RSMResolution = 128;	
+	int m_RSMResolution = 1024;	
 };

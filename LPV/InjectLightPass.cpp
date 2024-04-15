@@ -119,10 +119,17 @@ void CInjectLightPass::updateV()
 	
 	int RSMResolution = ElayGraphics::ResourceManager::getSharedDataByName<int>("RSMResolution");
 	glm::vec3 lightDir = ElayGraphics::ResourceManager::getSharedDataByName<glm::vec3>("LightDir");
-	ClearTexture(TextureConfig4LPVGridR, GL_TEXTURE_3D);
-	ClearTexture(TextureConfig4LPVGridG, GL_TEXTURE_3D);
-	ClearTexture(TextureConfig4LPVGridB, GL_TEXTURE_3D);
-	ClearTexture(TextureConfig4LPVGV, GL_TEXTURE_3D);
+	//ClearTexture(TextureConfig4LPVGridR, GL_TEXTURE_3D);
+	//ClearTexture(TextureConfig4LPVGridG, GL_TEXTURE_3D);
+	//ClearTexture(TextureConfig4LPVGridB, GL_TEXTURE_3D);
+	//ClearTexture(TextureConfig4LPVGV, GL_TEXTURE_3D);
+
+
+	float zero[] = { 0.0f, 0.0f, 0.0f, 0.0f };
+	glClearTexImage(TextureConfig4LPVGridR->TextureID, 0, GL_RGBA, GL_FLOAT, zero);
+	glClearTexImage(TextureConfig4LPVGridG->TextureID, 0, GL_RGBA, GL_FLOAT, zero);
+	glClearTexImage(TextureConfig4LPVGridB->TextureID, 0, GL_RGBA, GL_FLOAT, zero);
+	glClearTexImage(TextureConfig4LPVGV->TextureID, 0, GL_RGBA, GL_FLOAT, zero);
 
 	//glDisable(GL_DEPTH_TEST);
 	//glDepthFunc(GL_ALWAYS);
@@ -136,19 +143,22 @@ void CInjectLightPass::updateV()
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, TextureConfig4LPVGridR->TextureID, 0);
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, TextureConfig4LPVGridG->TextureID, 0);
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, TextureConfig4LPVGridB->TextureID, 0);
-	GLuint attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, TextureConfig4LPVGV->TextureID, 0);
+
+	GLuint attachments[4] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 };
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 	{
 		std::cerr << "Error::FBO:: Framebuffer Is Not Complete." << glCheckFramebufferStatus(GL_FRAMEBUFFER) << std::endl;
 	}
 	//genFBO();
-	glDrawBuffers(3, attachments);
+	glDrawBuffers(4, attachments);
 	
 
 	//glClearColor(0, 0, 0, 0);
 	//glClear(GL_COLOR_BUFFER_BIT);
 
 	m_pShader->activeShader();
+	
 	m_pShader->setFloatUniformValue("u_LightDir", lightDir.x, lightDir.y, lightDir.z);
 	m_pShader->setFloatUniformValue("u_RSMArea", ElayGraphics::ResourceManager::getSharedDataByName<float>("LightCameraAreaInWorldSpace"));
 	m_pShader->setMat4UniformValue("u_LightViewMat", glm::value_ptr(ElayGraphics::ResourceManager::getSharedDataByName<glm::mat4>("LightViewMatrix")));

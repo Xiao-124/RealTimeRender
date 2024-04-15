@@ -15,6 +15,7 @@ public:
 	virtual void initV();
 	virtual void updateV();
 private:
+	GLuint lastshBufferFloat;
 	GLuint shBufferFloat;
 	GLuint surfelBuffer;
 	GLuint SurfelRadianceBuffer;

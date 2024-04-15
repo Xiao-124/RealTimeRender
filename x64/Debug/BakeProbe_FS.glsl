@@ -29,7 +29,7 @@ void main()
 
 	WorldPosition_ = v2f_Position;
 	AlbedoAndMetallic_ = vec4(DiffuseColor,1.0);
-	Normal_ = vec4(v2f_Normal.xyz, 1);
+	Normal_ = vec4(normalize(v2f_Normal.xyz), 1);
 	float depth = (gl_FragCoord.z);
 	Chebyshevs_ = vec3(depth, depth * depth,LinearizeDepth(depth));
 

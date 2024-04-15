@@ -14,6 +14,7 @@ uniform vec3 u_Dimensions;
 
 out VertexData
 {
+	vec3 WorldPos;
 	vec3 Normal;
 	vec4 flux;
 	flat ivec3 cellIndex;
@@ -40,7 +41,7 @@ void main()
 
 	ivec3 cellIndex = getCellIndx(worldPos, worldNormal);
 	//ivec3 cellIndex = convertPointToGridIndex(worldPos);
-
+	vs_out.WorldPos = worldPos;
 	vs_out.Normal = worldNormal;
 	vs_out.flux = flux;
 	vs_out.cellIndex = cellIndex;

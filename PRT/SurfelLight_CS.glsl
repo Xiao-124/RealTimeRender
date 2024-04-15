@@ -3,6 +3,7 @@
 #define saturate(x)        clamp(x, 0.0, 1.0) 
 #define PI 3.1415926
 
+
 float SH(in int l, in int m, in vec3 s) 
 { 
     #define k01 0.2820947918    // sqrt(  1/PI)/2
@@ -55,6 +56,38 @@ vec3 IrradianceSH9(in vec3 c[9], in vec3 dir)
 }
 
 
+
+ivec3 GetProbeIndex3DFromWorldPos(vec3 worldPos, vec4 _coefficientVoxelSize, float _coefficientVoxelGridSize, vec4 _coefficientVoxelCorner)
+{
+    vec3 probeIndexF = floor((worldPos.xyz - _coefficientVoxelCorner.xyz) / _coefficientVoxelGridSize);
+    ivec3 probeIndex3 = ivec3(probeIndexF.x, probeIndexF.y, probeIndexF.z);
+    return probeIndex3;
+}
+
+int GetProbeIndex1DFromIndex3D(ivec3 probeIndex3, vec4 _coefficientVoxelSize)
+{
+    int probeIndex = int(probeIndex3.x * _coefficientVoxelSize.y * _coefficientVoxelSize.z
+        + probeIndex3.y * _coefficientVoxelSize.z
+        + probeIndex3.z);
+    return probeIndex;
+}
+
+bool IsIndex3DInsideVoxel(ivec3 probeIndex3, vec4 _coefficientVoxelSize)
+{
+    bool isInsideVoxelX = 0 <= probeIndex3.x && probeIndex3.x < _coefficientVoxelSize.x;
+    bool isInsideVoxelY = 0 <= probeIndex3.y && probeIndex3.y < _coefficientVoxelSize.y;
+    bool isInsideVoxelZ = 0 <= probeIndex3.z && probeIndex3.z < _coefficientVoxelSize.z;
+    bool isInsideVoxel = isInsideVoxelX && isInsideVoxelY && isInsideVoxelZ;
+    return isInsideVoxel;
+}
+
+vec3 GetProbePositionFromIndex3D(ivec3 probeIndex3, float _coefficientVoxelGridSize, vec4 _coefficientVoxelCorner)
+{
+    vec3 res = vec3(probeIndex3.x, probeIndex3.y, probeIndex3.z) * _coefficientVoxelGridSize + _coefficientVoxelCorner.xyz;
+    return res;
+}
+
+
 struct Surfel
 {
     vec3 position;
@@ -81,7 +114,13 @@ layout(binding=2, std430) writeonly buffer SurfelRadianceBuffer
 	vec3 _surfelRadiance[];
 };
 
-float _GIIntensity;
+layout(binding = 3, std430) readonly buffer LastSHBuffer_Float
+{
+    float _lastcoefficientSH9Float[];
+};
+
+
+uniform float _GIIntensity;
 // volume param
 uniform float _coefficientVoxelGridSize;
 uniform vec4 _coefficientVoxelCorner;
@@ -91,7 +130,89 @@ uniform sampler2D u_LightDepthTexture;
 uniform mat4 u_LightVPMatrix;
 
 uniform vec3 lightDirection = vec3(-1.0, -0.7071, 0);
-uniform vec3 lightColor = vec3(2,2,2);
+uniform float LightIntensity;
+uniform int useLastIndirect;
+
+
+void DecodeSHCoefficientFromVoxelFloat(inout vec3 c[9], int probeIndex)
+{
+    const int coefficientByteSize = 27; // 3x9 for SH9 RGB
+    int offset = probeIndex * coefficientByteSize;
+    for (int i = 0; i < 9; i++)
+    {
+        c[i].x = _lastcoefficientSH9Float[offset + i * 3 + 0];
+        c[i].y = _lastcoefficientSH9Float[offset + i * 3 + 1];
+        c[i].z = _lastcoefficientSH9Float[offset + i * 3 + 2];
+    }
+}
+
+
+
+vec3 TrilinearInterpolationvec3(in vec3 value[8], vec3 rate)
+{
+    vec3 a = mix(value[0], value[4], rate.x);    // 000, 100
+    vec3 b = mix(value[2], value[6], rate.x);    // 010, 110
+    vec3 c = mix(value[1], value[5], rate.x);    // 001, 101
+    vec3 d = mix(value[3], value[7], rate.x);    // 011, 111
+    vec3 e = mix(a, b, rate.y);
+    vec3 f = mix(c, d, rate.y);
+    vec3 g = mix(e, f, rate.z);
+    return g;
+}
+
+vec3 SampleSHVoxel(
+    in vec4 worldPos,
+    in vec3 albedo,
+    in vec3 normal,
+    in float _coefficientVoxelGridSize,
+    in vec4 _coefficientVoxelCorner,
+    in vec4 _coefficientVoxelSize
+)
+{
+    // probe grid index for current fragment
+    ivec3 probeIndex3 = GetProbeIndex3DFromWorldPos(worldPos.xyz, _coefficientVoxelSize, _coefficientVoxelGridSize, _coefficientVoxelCorner);
+    ivec3 offset[8] = {
+        ivec3(0, 0, 0), ivec3(0, 0, 1), ivec3(0, 1, 0), ivec3(0, 1, 1),
+        ivec3(1, 0, 0), ivec3(1, 0, 1), ivec3(1, 1, 0), ivec3(1, 1, 1),
+    };
+
+    vec3 c[9];
+    vec3 Lo[8] = { vec3(0, 0, 0), vec3(0, 0, 0), vec3(0, 0, 0), vec3(0, 0, 0), vec3(0, 0, 0), vec3(0, 0, 0), vec3(0, 0, 0), vec3(0, 0, 0), };
+    vec3 BRDF = albedo / PI;
+    float weight = 0.0005;
+
+    // near 8 probes
+    for (int i = 0; i < 8; i++)
+    {
+        ivec3 idx3 = probeIndex3 + offset[i];
+        bool isInsideVoxel = IsIndex3DInsideVoxel(idx3, _coefficientVoxelSize);
+        if (!isInsideVoxel)
+        {
+            Lo[i] = vec3(0, 0, 0);
+            continue;
+        }
+
+        // normal weight blend
+        vec3 probePos = GetProbePositionFromIndex3D(idx3, _coefficientVoxelGridSize, _coefficientVoxelCorner);
+        vec3 dir = normalize(probePos - worldPos.xyz);
+        float normalWeight = saturate(dot(dir, normal));
+        weight += normalWeight;
+
+        // decode SH9
+        int probeIndex = GetProbeIndex1DFromIndex3D(idx3, _coefficientVoxelSize);
+        //DecodeSHCoefficientFromVoxel(c,  probeIndex);
+        DecodeSHCoefficientFromVoxelFloat(c, probeIndex);
+        Lo[i] = IrradianceSH9(c, normal) * BRDF * normalWeight;
+    }
+
+    // trilinear interpolation
+    vec3 minCorner = GetProbePositionFromIndex3D(probeIndex3, _coefficientVoxelGridSize, _coefficientVoxelCorner);
+    vec3 maxCorner = minCorner + vec3(1, 1, 1) * _coefficientVoxelGridSize;
+    vec3 rate = (worldPos.xyz - minCorner) / _coefficientVoxelGridSize;
+    vec3 color = TrilinearInterpolationvec3(Lo, rate) / weight;
+
+    return color;
+}
 
 
 
@@ -114,19 +235,6 @@ float ShadowCalculation(vec4 PosLightSpace, vec3 normal, vec3 lightDir)
     }
 }
 
-vec3 GetProbePositionFromIndex3D(ivec3 probeIndex3, float _coefficientVoxelGridSize, vec4 _coefficientVoxelCorner)
-{
-    vec3 res = vec3(probeIndex3.x, probeIndex3.y, probeIndex3.z) * _coefficientVoxelGridSize + _coefficientVoxelCorner.xyz;
-    return res;
-}
-
-int GetProbeIndex1DFromIndex3D(ivec3 probeIndex3, vec4 _coefficientVoxelSize)
-{
-    int probeIndex = int(probeIndex3.x * _coefficientVoxelSize.y * _coefficientVoxelSize.z
-                    + probeIndex3.y * _coefficientVoxelSize.z 
-                    + probeIndex3.z);
-    return probeIndex;
-}
 
 layout (local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
 shared vec3 coSH9[256*9];
@@ -150,20 +258,36 @@ void main ()
 
     vec4 fragPosLightSpace = u_LightVPMatrix * WorldPos;
     float Visibility4DirectLight = ShadowCalculation(fragPosLightSpace, surfel.normal, ldir);
-    Visibility4DirectLight = 1.0f;
+    //Visibility4DirectLight = 1.0f;
 
     // radiance from light
     float NdotL = saturate(dot(surfel.normal, ldir));
-    vec3 radiance = surfel.albedo  * NdotL * Visibility4DirectLight *  (1.0 - surfel.skyMask);
-    //vec3 outRadiance = surfel.albedo;
+    vec3 radiance = surfel.albedo  * NdotL * Visibility4DirectLight *  (1.0 - surfel.skyMask) * LightIntensity;
+    vec3 outRadiance = surfel.albedo;
+
+    // for debug
+    _surfelRadiance[surfelIndex] = radiance;
 
 
     // direction from probe to surfel
     vec3 dir = normalize(surfel.position - _probePos.xyz);
-
     // radiance from sky
     vec3 skyColor = vec3(1,1,1);
     //radiance += skyColor * surfel.skyMask * _skyLightIntensity;  
+
+
+    vec3 history = SampleSHVoxel(
+        vec4(surfel.position, 1.0),
+        surfel.albedo,
+        surfel.normal,
+        _coefficientVoxelGridSize,
+        _coefficientVoxelCorner,
+        _coefficientVoxelSize
+    );
+    if (useLastIndirect == 1)
+    {
+        radiance += history * _GIIntensity;
+    }
 
     // SH projection
     const float N = 16 * 16;
@@ -204,13 +328,14 @@ void main ()
 
     // atom write result to buffer
 
-
     for(int i=0; i<9; i++)
     {
         _coefficientSH9Float[shoffset + i*3+0] = coSH9[i].x;
         _coefficientSH9Float[shoffset + i*3+1] = coSH9[i].y;
         _coefficientSH9Float[shoffset + i*3+2] = coSH9[i].z;
     }
-     // for debug
-    _surfelRadiance[surfelIndex] = radiance;
+
+
+
+
 }

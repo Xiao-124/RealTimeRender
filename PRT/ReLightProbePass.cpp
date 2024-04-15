@@ -39,6 +39,8 @@ void CReLightProbePass::initV()
 	surfelBuffer = genBuffer(GL_SHADER_STORAGE_BUFFER, pushsurfelDatas.size() * sizeof(Surfel), &pushsurfelDatas[0], GL_STATIC_DRAW, 0);
 	ElayGraphics::ResourceManager::registerSharedData("surfelBuffer", surfelBuffer);
 
+	
+
 	shDatas = std::make_shared<SHData>();
 	shDatas->all_coefficientSH9.resize(suefelDatas->all_surfelData.size());
 	int all_num = suefelDatas->all_surfelData.size();
@@ -53,9 +55,11 @@ void CReLightProbePass::initV()
 	std::vector<float> cleanDataFloat(27 * all_num, 0);
 	shBufferFloat = genBuffer(GL_SHADER_STORAGE_BUFFER, 27 * sizeof(float) * all_num, &cleanDataFloat[0], GL_STATIC_DRAW, 1);
 	ElayGraphics::ResourceManager::registerSharedData("AllshBufferFloat", shBufferFloat);
+	lastshBufferFloat = genBuffer(GL_SHADER_STORAGE_BUFFER, 27 * sizeof(float) * all_num, &cleanDataFloat[0], GL_STATIC_DRAW, 3);
 
-	std::vector<float> cleanDataRadiance(3 * all_num * 256, 0);
-	SurfelRadianceBuffer = genBuffer(GL_SHADER_STORAGE_BUFFER, 3 * sizeof(float) * all_num * 256, &cleanDataRadiance[0], GL_STATIC_DRAW, 2);
+	
+	std::vector<float> cleanDataRadiance(3 * pushsurfelDatas.size(), 0);
+	SurfelRadianceBuffer = genBuffer(GL_SHADER_STORAGE_BUFFER, sizeof(glm::vec3) * pushsurfelDatas.size(), &cleanDataRadiance[0], GL_STATIC_DRAW, 2);
 	ElayGraphics::ResourceManager::registerSharedData("SurfelRadianceBuffer", SurfelRadianceBuffer);
 
 
@@ -87,8 +91,13 @@ void CReLightProbePass::updateV()
 	glm::ivec3 m_MaxAABB = ElayGraphics::ResourceManager::getSharedDataByName<glm::vec3>("MaxAABB");
 	float step_probe = ElayGraphics::ResourceManager::getSharedDataByName<float>("step_probe");
 	
+
 	glm::mat4 LightProjectionMatrix = ElayGraphics::ResourceManager::getSharedDataByName<glm::mat4>("LightProjectionMatrix");
 	glm::mat4 LightViewMatrix = ElayGraphics::ResourceManager::getSharedDataByName<glm::mat4>("LightViewMatrix");
+	float LightIntensity = ElayGraphics::ResourceManager::getSharedDataByName<float>("LightIntensity");
+	bool useLastIndirect = ElayGraphics::ResourceManager::getSharedDataByName<bool>("useLastIndirect");
+	float GIIntensity = ElayGraphics::ResourceManager::getSharedDataByName<float>("GIIntensity");
+
 
 
 	int DispatchX = 0, DispatchY = 0, DispatchZ = 0;
@@ -119,19 +128,33 @@ void CReLightProbePass::updateV()
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, surfelBuffer);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, shBufferFloat);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, SurfelRadianceBuffer);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, lastshBufferFloat);
 
 	LightDir = glm::normalize(glm::vec3(-LightDir));
 	m_pShader->setFloatUniformValue("lightDirection", LightDir.x, LightDir.y, LightDir.z);
 	m_pShader->setMat4UniformValue("u_LightVPMatrix", glm::value_ptr(LightProjectionMatrix * LightViewMatrix));
+	m_pShader->setFloatUniformValue("LightIntensity", LightIntensity);
+	m_pShader->setIntUniformValue("useLastIndirect", useLastIndirect);
+	m_pShader->setFloatUniformValue("_GIIntensity", GIIntensity);
 	//大小
 	m_pShader->setFloatUniformValue("_coefficientVoxelGridSize", step_probe);
 	//minAABB
 	m_pShader->setFloatUniformValue("_coefficientVoxelCorner", m_MinAABB[0], m_MinAABB[1], m_MinAABB[2], 1);
 	//x,y,z方向的个数
 	m_pShader->setFloatUniformValue("_coefficientVoxelSize", _coefficientVoxelSize.x, _coefficientVoxelSize.y, _coefficientVoxelSize.z, 1.0);
+	
+	
 	glDispatchCompute(DispatchX, DispatchY, DispatchZ);
 	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 	glFlush();
+
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, shBufferFloat);
+	GLvoid* p = (GLvoid*)glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_WRITE);
+	std::vector<float> readShData(27 * all_num, 0);
+	memcpy(&readShData[0], p, readShData.size() *sizeof(float));
+	glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+	updateSSBOBuffer(lastshBufferFloat, 27 * sizeof(float) * all_num, &readShData[0], GL_STATIC_DRAW);
+
 
 }
 

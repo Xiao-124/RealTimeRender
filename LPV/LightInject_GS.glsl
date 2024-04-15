@@ -3,6 +3,7 @@
 layout(points) in;
 in VertexData 
 {
+	vec3 WorldPos;
 	vec3 Normal;
 	vec4 flux;
 	flat ivec3 cellIndex;
@@ -13,8 +14,9 @@ layout(points, max_vertices = 1) out;
 
 out FragData 
 {
-  vec3 Normal;
-  vec4 flux;
+	vec3 WorldPos;
+	vec3 Normal;
+	vec4 flux;
 }gs_out;
 
 
@@ -24,6 +26,7 @@ void main()
 	gl_PointSize = gl_in[0].gl_PointSize;
 
 	gl_Layer = gs_in[0].cellIndex.z;
+	gs_out.WorldPos = gs_in[0].WorldPos;
 	gs_out.Normal = gs_in[0].Normal;
 	gs_out.flux = gs_in[0].flux;
 	EmitVertex();

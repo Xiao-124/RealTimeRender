@@ -91,8 +91,7 @@ uniform sampler2D u_LightDepthTexture;
 uniform mat4 u_LightVPMatrix;
 
 uniform vec3 lightDirection = vec3(-1.0, -0.7071, 0);
-uniform vec3 lightColor = vec3(2,2,2);
-
+uniform float LightIntensity;
 
 
 float ShadowCalculation(vec4 PosLightSpace, vec3 normal, vec3 lightDir)
@@ -150,17 +149,19 @@ void main ()
 
     vec4 fragPosLightSpace = u_LightVPMatrix * WorldPos;
     float Visibility4DirectLight = ShadowCalculation(fragPosLightSpace, surfel.normal, ldir);
-    Visibility4DirectLight = 1.0f;
+    //Visibility4DirectLight = 1.0f;
 
     // radiance from light
     float NdotL = saturate(dot(surfel.normal, ldir));
-    vec3 radiance = surfel.albedo  * NdotL * Visibility4DirectLight *  (1.0 - surfel.skyMask);
+    vec3 radiance = surfel.albedo  * NdotL * Visibility4DirectLight *  (1.0 - surfel.skyMask) * LightIntensity;
     vec3 outRadiance = surfel.albedo;
+
+    // for debug
+    _surfelRadiance[surfelIndex] = radiance;
 
 
     // direction from probe to surfel
     vec3 dir = normalize(surfel.position - _probePos.xyz);
-
     // radiance from sky
     vec3 skyColor = vec3(1,1,1);
     //radiance += skyColor * surfel.skyMask * _skyLightIntensity;  
@@ -204,13 +205,14 @@ void main ()
 
     // atom write result to buffer
 
-
     for(int i=0; i<9; i++)
     {
         _coefficientSH9Float[shoffset + i*3+0] = coSH9[i].x;
         _coefficientSH9Float[shoffset + i*3+1] = coSH9[i].y;
         _coefficientSH9Float[shoffset + i*3+2] = coSH9[i].z;
     }
-     // for debug
-    _surfelRadiance[surfelIndex] = outRadiance;
+
+
+
+
 }

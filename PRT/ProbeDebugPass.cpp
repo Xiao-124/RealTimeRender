@@ -81,7 +81,7 @@ void CProbeDebugPass::updateV()
 				//drawSphere();
 
 				glBindVertexArray(ElayGraphics::ResourceManager::getOrCretaeSphereVAO());
-				//glDrawElements(GL_TRIANGLE_STRIP, 8320, GL_UNSIGNED_INT, 0);
+				glDrawElements(GL_TRIANGLE_STRIP, 8320, GL_UNSIGNED_INT, 0);
 				glDrawElementsInstanced(GL_TRIANGLE_STRIP, 8320, GL_UNSIGNED_INT, 0, 256);
 				glBindVertexArray(0);
 

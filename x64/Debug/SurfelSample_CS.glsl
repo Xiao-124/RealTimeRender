@@ -48,10 +48,13 @@ void main ()
 {
     uvec3 id = gl_GlobalInvocationID;
     vec2 xy = vec2(gl_GlobalInvocationID.x, gl_GlobalInvocationID.y) / vec2(16, 16);
+   
     xy += vec2(1, 1) * _randSeed;
-
     float u = rand(xy * 1.0);
     float v = rand(xy * 2.0);
+
+    //float u = xy.x;
+    //float v = xy.y;
     vec3 dir = UniformSphereSample(u, v);
     dir = normalize(dir);
 

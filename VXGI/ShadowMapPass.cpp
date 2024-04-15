@@ -56,21 +56,11 @@ void CShadowMapPass::updateV()
 	m_pShader->setMat4UniformValue("u_ModelMatrix", glm::value_ptr(m_pSponza->getModelMatrix()));
 	glm::mat4 LightProjectionMatrix = ElayGraphics::ResourceManager::getSharedDataByName<glm::mat4>("LightProjectionMatrix");
 	glm::mat4 LightViewMatrix = ElayGraphics::ResourceManager::getSharedDataByName<glm::mat4>("LightViewMatrix");
-	
+
 	float MaxCoord = ElayGraphics::ResourceManager::getSharedDataByName<float>("MaxCoord");
 	auto LightDir = ElayGraphics::ResourceManager::getSharedDataByName<glm::vec3>("LightDir");
 
-	glm::vec3 DPos = 1.5f * MaxCoord * -glm::normalize(LightDir);
-	glm::vec3 up = glm::vec3(1.0f, 0.0f, 0.0f);
-
-	float coord = 1.5 * MaxCoord;
-	glm::mat4 DirectionalShadowProj = glm::ortho(-coord, coord, -coord, coord, 0.01f, 2 * coord);
-
-	glm::mat4 DView = glm::lookAt(DPos, glm::vec3(0.0f, 0.0f, 0.0f), up);
-	
-	//m_pShader->setMat4UniformValue("u_LightVPMatrix", glm::value_ptr(LightProjectionMatrix * LightViewMatrix));
-
-	m_pShader->setMat4UniformValue("u_LightVPMatrix", glm::value_ptr(DirectionalShadowProj *DView));
+	m_pShader->setMat4UniformValue("u_LightVPMatrix", glm::value_ptr(LightProjectionMatrix * LightViewMatrix));
 	m_pSponza->updateModel(*m_pShader);
 
 	glViewport(0, 0, ElayGraphics::WINDOW_KEYWORD::getWindowWidth(), ElayGraphics::WINDOW_KEYWORD::getWindowHeight());

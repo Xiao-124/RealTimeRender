@@ -140,13 +140,24 @@ void CPropagationLightPass::updateV()
 	
 	for (int i = 1; i <= m_ProgationNum; i++)
 	{
-		ClearTexture(m_TextureConfig4LPVGridR[i], GL_TEXTURE_3D);
-		ClearTexture(m_TextureConfig4LPVGridG[i], GL_TEXTURE_3D);
-		ClearTexture(m_TextureConfig4LPVGridB[i], GL_TEXTURE_3D);
+		//ClearTexture(m_TextureConfig4LPVGridR[i], GL_TEXTURE_3D);
+		//ClearTexture(m_TextureConfig4LPVGridG[i], GL_TEXTURE_3D);
+		//ClearTexture(m_TextureConfig4LPVGridB[i], GL_TEXTURE_3D);
+
+		float zero[] = { 0.0f, 0.0f, 0.0f, 0.0f };
+		glClearTexImage(m_TextureConfig4LPVGridR[i]->TextureID, 0, GL_RGBA, GL_FLOAT, zero);
+		glClearTexImage(m_TextureConfig4LPVGridG[i]->TextureID, 0, GL_RGBA, GL_FLOAT, zero);
+		glClearTexImage(m_TextureConfig4LPVGridB[i]->TextureID, 0, GL_RGBA, GL_FLOAT, zero);
 	}
-	ClearTexture(m_TextureConfig4LPVAccumulatorR, GL_TEXTURE_3D);
-	ClearTexture(m_TextureConfig4LPVAccumulatorG, GL_TEXTURE_3D);
-	ClearTexture(m_TextureConfig4LPVAccumulatorB, GL_TEXTURE_3D);
+
+	float zero[] = { 0.0f, 0.0f, 0.0f, 0.0f };
+	glClearTexImage(m_TextureConfig4LPVAccumulatorR->TextureID, 0, GL_RGBA, GL_FLOAT, zero);
+	glClearTexImage(m_TextureConfig4LPVAccumulatorG->TextureID, 0, GL_RGBA, GL_FLOAT, zero);
+	glClearTexImage(m_TextureConfig4LPVAccumulatorB->TextureID, 0, GL_RGBA, GL_FLOAT, zero);
+
+	//ClearTexture(m_TextureConfig4LPVAccumulatorR, GL_TEXTURE_3D);
+	//ClearTexture(m_TextureConfig4LPVAccumulatorG, GL_TEXTURE_3D);
+	//ClearTexture(m_TextureConfig4LPVAccumulatorB, GL_TEXTURE_3D);
 
 
 	glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);

@@ -61,7 +61,6 @@ void CRSMBufferPass::initV()
 	m_pShader->setFloatUniformValue("u_LightDir", LightDir.x, LightDir.y, LightDir.z);
 	m_pShader->setIntUniformValue("u_VPLsCount", m_RSMResolution * m_RSMResolution);
 	m_pShader->setFloatUniformValue("u_RSMCameraAreaInWorldSpace", ElayGraphics::ResourceManager::getSharedDataByName<float>("LightCameraAreaInWorldSpace"));
-	m_pShader->setFloatUniformValue("u_Intensity", ElayGraphics::ResourceManager::getSharedDataByName<float>("LightIntensity"));
 	m_pSponza->initModel(*m_pShader);
 
 	ElayGraphics::ResourceManager::registerSharedData("RSMResolution", m_RSMResolution);
@@ -81,6 +80,8 @@ void CRSMBufferPass::updateV()
 	glm::mat4 LightProjectionMatrix = ElayGraphics::ResourceManager::getSharedDataByName<glm::mat4>("LightProjectionMatrix");
 	glm::mat4 LightViewMatrix = ElayGraphics::ResourceManager::getSharedDataByName<glm::mat4>("LightViewMatrix");
 	m_pShader->setMat4UniformValue("u_LightVPMatrix", glm::value_ptr(LightProjectionMatrix * LightViewMatrix));
+	m_pShader->setFloatUniformValue("u_Intensity", ElayGraphics::ResourceManager::getSharedDataByName<float>("LightIntensity"));
+
 	m_pSponza->updateModel(*m_pShader);
 
 	glViewport(0, 0, ElayGraphics::WINDOW_KEYWORD::getWindowWidth(), ElayGraphics::WINDOW_KEYWORD::getWindowHeight());

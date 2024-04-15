@@ -57,12 +57,10 @@ void CVoxelizationPass::initV()
 	//voxelTexture->isMipmap = true;
 	genTexture(voxelNormalTexture);
 
-
 	glm::vec3 minAABB = ElayGraphics::ResourceManager::getSharedDataByName<glm::vec3>("MinAABB");
 	glm::vec3 maxAABB = ElayGraphics::ResourceManager::getSharedDataByName<glm::vec3>("MaxAABB");
 
 	
-
 	float MaxCoord = 0;
 	glm::vec3 midpoint = (minAABB + maxAABB) * 0.5f;
 	MaxCoord = glm::compMax(glm::abs(midpoint - maxAABB)) + 1.0;
