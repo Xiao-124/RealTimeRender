@@ -17,5 +17,6 @@ public:
 private:
 	GLuint shBufferFloat;
 	GLuint surfelBuffer;
+	GLuint SurfelRadianceBuffer;
 	std::shared_ptr<SHData> shDatas;
 };

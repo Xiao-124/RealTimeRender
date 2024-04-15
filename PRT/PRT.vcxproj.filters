@@ -51,6 +51,9 @@
     <ClCompile Include="ScreenQuadPass.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="ProbeDebugPass.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LightProbePass.h">
@@ -81,6 +84,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="ScreenQuadPass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ProbeDebugPass.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -122,6 +128,18 @@
       <Filter>Shader</Filter>
     </None>
     <None Include="ScreenQuad_FS.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="ProbeDebug_VS.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="ProbeDebug_FS.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="ProbeSphere_VS.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="ProbeSphere_FS.glsl">
       <Filter>Shader</Filter>
     </None>
   </ItemGroup>

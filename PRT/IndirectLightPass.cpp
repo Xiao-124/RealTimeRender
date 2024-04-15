@@ -64,6 +64,7 @@ void CIndirectLightPass::updateV()
 	m_pShader->activeShader();
 	auto ViewMatrix = ElayGraphics::Camera::getMainCameraViewMatrix();
 	m_pShader->setMat4UniformValue("u_InverseCameraViewMatrix", glm::value_ptr(glm::inverse(ViewMatrix)));
+
 	auto LightDir = ElayGraphics::ResourceManager::getSharedDataByName<glm::vec3>("LightDir");
 	m_pShader->setFloatUniformValue("_GIIntensity", _GIIntensity);
 	//ด๓ะก

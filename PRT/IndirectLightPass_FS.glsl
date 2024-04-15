@@ -184,13 +184,17 @@ vec3 SampleSHVoxel(
     
     return color;
 }
+
+
+
+
 void main()
 {
 	vec3 Normal = texture(u_NormalTexture,v2f_TexCoords).xyz;
-	vec3 Position = texture(u_PositionTexture, v2f_TexCoords).xyz;
     vec3 DiffuseColor = texture(u_AlbedoTexture, v2f_TexCoords).rgb;
-
-	Position = vec3(u_InverseCameraViewMatrix * vec4(Position,1));
+	
+    vec3 Position = texture(u_PositionTexture, v2f_TexCoords).xyz;
+    Position = vec3(u_InverseCameraViewMatrix * vec4(Position,1));
     vec4 WorldPos = vec4(Position, 1.0f);
 
     vec3 gi = SampleSHVoxel(WorldPos, DiffuseColor, Normal, _coefficientVoxelGridSize, _coefficientVoxelCorner, _coefficientVoxelSize);

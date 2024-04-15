@@ -9,10 +9,10 @@ class CSponza;
 
 struct Surfel
 {
-	glm::vec3 position;
-	glm::vec3 normal;
-	glm::vec3 albedo;
-	float skyMask;
+	glm::vec3 position = glm::vec3(0,0,0);
+	glm::vec3 normal = glm::vec3(0, 0, 0);
+	glm::vec3 albedo = glm::vec3(0, 0, 0);
+	glm::vec3 skyMask = glm::vec3(1);
 };
 
 struct SurfelData

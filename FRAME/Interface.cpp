@@ -295,6 +295,11 @@ GLint ElayGraphics::ResourceManager::getOrCreateCubeVAO()
 	return CResourceManager::getOrCreateInstance()->getOrCreateCubeVAO();
 }
 
+GLint ElayGraphics::ResourceManager::getOrCretaeSphereVAO()
+{
+	return CResourceManager::getOrCreateInstance()->getOrCretaeSphereVAO();
+}
+
 //************************************************************************************
 //Function:
 const std::shared_ptr<CMainGUI>& ElayGraphics::ResourceManager::getOrCreateMainGUI()

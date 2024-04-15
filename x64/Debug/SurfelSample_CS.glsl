@@ -43,16 +43,17 @@ vec3 UniformSphereSample(float u, float v)
 }
 
 
-layout (local_size_x = 32, local_size_y = 16, local_size_z = 1) in;
+layout (local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
 void main ()
 {
     uvec3 id = gl_GlobalInvocationID;
-    vec2 xy = vec2(gl_GlobalInvocationID.x, gl_GlobalInvocationID.y) / vec2(32, 16);
+    vec2 xy = vec2(gl_GlobalInvocationID.x, gl_GlobalInvocationID.y) / vec2(16, 16);
     xy += vec2(1, 1) * _randSeed;
 
     float u = rand(xy * 1.0);
     float v = rand(xy * 2.0);
     vec3 dir = UniformSphereSample(u, v);
+    dir = normalize(dir);
 
     Surfel result;
 
@@ -65,8 +66,10 @@ void main ()
     result.skyMask = saturate(1.0 - normal_and_mask.w);
 
     // sample sky
-    result.position += (_probePos.xyz + dir) * result.skyMask;
+    //result.position += (_probePos.xyz + dir) * result.skyMask;
+
     uint surfelIndex = id.x * 16 + id.y;
+
     _surfels[surfelIndex] = result;
 
 

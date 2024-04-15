@@ -37,11 +37,11 @@ void CReLightProbePass::initV()
 		}
 	}
 	surfelBuffer = genBuffer(GL_SHADER_STORAGE_BUFFER, pushsurfelDatas.size() * sizeof(Surfel), &pushsurfelDatas[0], GL_STATIC_DRAW, 0);
-	
+	ElayGraphics::ResourceManager::registerSharedData("surfelBuffer", surfelBuffer);
+
 	shDatas = std::make_shared<SHData>();
 	shDatas->all_coefficientSH9.resize(suefelDatas->all_surfelData.size());
 	int all_num = suefelDatas->all_surfelData.size();
-	std::vector<int> cleanData(27  * all_num, 0);
 	for (int i = 0; i < suefelDatas->all_surfelData.size(); i++)
 	{
 		shDatas->all_coefficientSH9[i].resize(27);
@@ -51,8 +51,12 @@ void CReLightProbePass::initV()
 	//shDatas->all_coefficientSH9.resize(suefelDatas->all_surfelData.size());
 
 	std::vector<float> cleanDataFloat(27 * all_num, 0);
-	shBufferFloat = genBuffer(GL_SHADER_STORAGE_BUFFER, 27 * sizeof(float) * all_num, &cleanData[0], GL_STATIC_DRAW, 2);
+	shBufferFloat = genBuffer(GL_SHADER_STORAGE_BUFFER, 27 * sizeof(float) * all_num, &cleanDataFloat[0], GL_STATIC_DRAW, 1);
 	ElayGraphics::ResourceManager::registerSharedData("AllshBufferFloat", shBufferFloat);
+
+	std::vector<float> cleanDataRadiance(3 * all_num * 256, 0);
+	SurfelRadianceBuffer = genBuffer(GL_SHADER_STORAGE_BUFFER, 3 * sizeof(float) * all_num * 256, &cleanDataRadiance[0], GL_STATIC_DRAW, 2);
+	ElayGraphics::ResourceManager::registerSharedData("SurfelRadianceBuffer", SurfelRadianceBuffer);
 
 
 	ElayGraphics::ResourceManager::registerSharedData("shDatas", shDatas);
@@ -76,7 +80,7 @@ void CReLightProbePass::updateV()
 			pushsurfelDatas.push_back(suefelDatas->all_surfelData[i][j]);
 		}
 	}
-	//surfelBuffer = genBuffer(GL_SHADER_STORAGE_BUFFER, pushsurfelDatas.size() * sizeof(Surfel), &pushsurfelDatas[0], GL_STATIC_DRAW, 0);
+	//x, y, z
 	updateSSBOBuffer(surfelBuffer, pushsurfelDatas.size() * sizeof(Surfel), &pushsurfelDatas[0], GL_STATIC_DRAW);
 
 	glm::ivec3 m_MinAABB = ElayGraphics::ResourceManager::getSharedDataByName<glm::vec3>("MinAABB");
@@ -114,7 +118,10 @@ void CReLightProbePass::updateV()
 	m_pShader->activeShader();
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, surfelBuffer);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, shBufferFloat);
-	m_pShader->setFloatUniformValue("lightDirection", -LightDir[0], -LightDir[1], -LightDir[2]);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, SurfelRadianceBuffer);
+
+	LightDir = glm::normalize(glm::vec3(-LightDir));
+	m_pShader->setFloatUniformValue("lightDirection", LightDir.x, LightDir.y, LightDir.z);
 	m_pShader->setMat4UniformValue("u_LightVPMatrix", glm::value_ptr(LightProjectionMatrix * LightViewMatrix));
 	//ด๓ะก
 	m_pShader->setFloatUniformValue("_coefficientVoxelGridSize", step_probe);

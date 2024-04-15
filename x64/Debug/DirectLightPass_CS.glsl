@@ -23,7 +23,7 @@ uniform float  u_Intensity;
 
 void main()
 {
-		ivec2 FragPos = ivec2(gl_GlobalInvocationID.xy);
+	ivec2 FragPos = ivec2(gl_GlobalInvocationID.xy);
 	vec4 Normal = texelFetch(u_InputNormalTexture, FragPos, 0);
 	vec4 Position = texelFetch(u_InputPositionTexture, FragPos, 0);
 	vec3 Albedo = texelFetch(u_InputAlbedoTexture, FragPos, 0).xyz;

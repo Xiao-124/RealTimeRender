@@ -26,8 +26,7 @@ void main()
 	float Gamma = 2.2;
 	vec3 DiffuseColor = pow(texture(u_DiffuseTexture, v2f_TexCoords).rgb, vec3(Gamma));	
 	float Alpha = textureLod(u_DiffuseTexture, v2f_TexCoords,0).a;
-	if(Alpha != 1.0f)
-		discard;
+
 	WorldPosition_ = v2f_Position;
 	AlbedoAndMetallic_ = vec4(DiffuseColor,1.0);
 	Normal_ = vec4(v2f_Normal.xyz, 1);

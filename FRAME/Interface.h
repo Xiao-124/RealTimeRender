@@ -72,6 +72,7 @@ namespace ElayGraphics
 	{
 		FRAME_DLLEXPORTS int								 getOrCreateScreenQuadVAO();
 		FRAME_DLLEXPORTS int								 getOrCreateCubeVAO();
+		FRAME_DLLEXPORTS int								 getOrCretaeSphereVAO();
 		FRAME_DLLEXPORTS const std::shared_ptr<CMainGUI>&	 getOrCreateMainGUI();
 		FRAME_DLLEXPORTS const std::shared_ptr<IGameObject>& getGameObjectByName(const std::string &vGameObjectName);
 		FRAME_DLLEXPORTS const std::shared_ptr<CModel>&		 getOrCreateModel(const std::string &vModelPath);

@@ -38,13 +38,16 @@ void CLightProbePass::initV()
 				auto TextureConfig4Normal = std::make_shared<ElayGraphics::STexture>();
 				auto TextureConfig4Chebyshev = std::make_shared<ElayGraphics::STexture>();
 
-				TextureConfig4Position->InternalFormat = TextureConfig4Normal->InternalFormat = GL_RGB32F;
-				TextureConfig4Position->ExternalFormat = TextureConfig4Normal->ExternalFormat = GL_RGB;
-				TextureConfig4Position->DataType = TextureConfig4Normal->DataType = GL_FLOAT;
-				TextureConfig4Position->TextureType = TextureConfig4Normal->TextureType = ElayGraphics::STexture::ETextureType::TextureCubeMap;
-				TextureConfig4Position->Width = TextureConfig4Normal->Width = m_BakeResolution;
-				TextureConfig4Position->Height = TextureConfig4Normal->Height = m_BakeResolution;
-
+				TextureConfig4Position->InternalFormat = GL_RGB32F;
+				TextureConfig4Position->ExternalFormat = GL_RGB;
+				TextureConfig4Position->DataType  = GL_FLOAT;
+				TextureConfig4Position->TextureType = ElayGraphics::STexture::ETextureType::TextureCubeMap;
+				TextureConfig4Position->Width = m_BakeResolution;
+				TextureConfig4Position->Height = m_BakeResolution;
+				TextureConfig4Position->BorderColor = std::vector<float>{ 0,0,0 };
+				TextureConfig4Position->Type4WrapR = GL_CLAMP_TO_EDGE;
+				TextureConfig4Position->Type4WrapS = GL_CLAMP_TO_EDGE;
+				TextureConfig4Position->Type4WrapT = GL_CLAMP_TO_EDGE;
 
 				TextureConfig4Albedo->InternalFormat = TextureConfig4Normal->InternalFormat = GL_RGBA32F;
 				TextureConfig4Albedo->ExternalFormat = TextureConfig4Normal->ExternalFormat = GL_RGBA;
@@ -52,6 +55,9 @@ void CLightProbePass::initV()
 				TextureConfig4Albedo->TextureType = TextureConfig4Normal->TextureType = ElayGraphics::STexture::ETextureType::TextureCubeMap;
 				TextureConfig4Albedo->Width = TextureConfig4Normal->Width = m_BakeResolution;
 				TextureConfig4Albedo->Height = TextureConfig4Normal->Height = m_BakeResolution;
+				TextureConfig4Albedo->Type4WrapR = TextureConfig4Normal->Type4WrapR =  GL_CLAMP_TO_EDGE;
+				TextureConfig4Albedo->Type4WrapS = TextureConfig4Normal->Type4WrapS = GL_CLAMP_TO_EDGE;
+				TextureConfig4Albedo->Type4WrapT = TextureConfig4Normal->Type4WrapT = GL_CLAMP_TO_EDGE;
 
 				TextureConfig4Chebyshev->InternalFormat = GL_RGB32F;
 				TextureConfig4Chebyshev->ExternalFormat = GL_RGB;
@@ -59,7 +65,9 @@ void CLightProbePass::initV()
 				TextureConfig4Chebyshev->TextureType = ElayGraphics::STexture::ETextureType::TextureCubeMap;
 				TextureConfig4Chebyshev->Width = m_BakeResolution;
 				TextureConfig4Chebyshev->Height = m_BakeResolution;
-
+				TextureConfig4Chebyshev->Type4WrapR = GL_CLAMP_TO_EDGE;
+				TextureConfig4Chebyshev->Type4WrapS = GL_CLAMP_TO_EDGE;
+				TextureConfig4Chebyshev->Type4WrapT = GL_CLAMP_TO_EDGE;
 
 				genTexture(TextureConfig4Chebyshev);
 				genTexture(TextureConfig4Albedo);
@@ -93,10 +101,10 @@ void CLightProbePass::initV()
 	surfelDatas->all_surfelData.resize(m_FBOs.size());
 	for (int i = 0; i < m_FBOs.size(); i++)
 	{
-		surfelDatas->all_surfelData[i].resize(32 * 16);
+		surfelDatas->all_surfelData[i].resize(16 * 16);
 	}
 
-	std::vector<Surfel> surfelData(32 * 16);
+	std::vector<Surfel> surfelData(16 * 16);
 	surfelBuffer = genBuffer(GL_SHADER_STORAGE_BUFFER, surfelData.size() * sizeof(Surfel), &surfelData[0], GL_STATIC_DRAW, 0);
 
 	ElayGraphics::ResourceManager::registerSharedData("SurfelBuffer", surfelBuffer);
@@ -120,12 +128,15 @@ void CLightProbePass::updateV()
 {
 
 	int Index = 0;
+	
 	for (int i = m_MinAABB.x; i < m_MaxAABB.x; i += step_probe)
 	{
 		for (int j = m_MinAABB.y; j < m_MaxAABB.y; j += step_probe)
 		{
 			for (int k = m_MinAABB.z; k < m_MaxAABB.z; k += step_probe)
 			{
+
+				
 				glBindFramebuffer(GL_FRAMEBUFFER, m_FBOs[Index]);
 				glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -164,7 +175,7 @@ void CLightProbePass::updateV()
 	glDisable(GL_DEPTH_TEST);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	
+	std::vector<Surfel> clearData(16 * 16);
 	auto surfelSampleCS = std::make_shared<CShader>("SurfelSample_CS.glsl");
 	Index = 0;
 	for (int i = m_MinAABB.x; i < m_MaxAABB.x; i += step_probe)
@@ -173,6 +184,8 @@ void CLightProbePass::updateV()
 		{
 			for (int k = m_MinAABB.z; k < m_MaxAABB.z; k += step_probe)
 			{
+
+				updateSSBOBuffer(surfelBuffer, 16*16 *sizeof(Surfel), &clearData[0], GL_STATIC_DRAW );
 				surfelSampleCS->activeShader();
 				glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, surfelBuffer);
 
@@ -188,14 +201,17 @@ void CLightProbePass::updateV()
 				glDispatchCompute(1, 1, 1);
 				glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 				glFlush();
+				glFinish();
 
 				glBindBuffer(GL_SHADER_STORAGE_BUFFER, surfelBuffer);
 				GLvoid* p = (GLvoid*)glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_WRITE);
-				memcpy(&surfelDatas->all_surfelData[Index][0], p, 32*16 * sizeof(Surfel));
+				memcpy(&surfelDatas->all_surfelData[Index][0], p, 16*16 * sizeof(Surfel));
 				glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
 				Index ++;
 			}
 		}
 	}
+	int f = sizeof(Surfel);
+	int surfelSize = 16 * 16 * sizeof(Surfel)* (Index);
 
 }
