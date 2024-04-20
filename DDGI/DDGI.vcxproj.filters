@@ -136,10 +136,13 @@
     <None Include="ScreenQuad_VS.glsl">
       <Filter>Shader</Filter>
     </None>
-    <None Include="SurfelLight_CS.glsl">
+    <None Include="SurfelSample_CS.glsl">
       <Filter>Shader</Filter>
     </None>
-    <None Include="SurfelSample_CS.glsl">
+    <None Include="ReLight_VS.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="ReLight_FS.glsl">
       <Filter>Shader</Filter>
     </None>
   </ItemGroup>

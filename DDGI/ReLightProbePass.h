@@ -15,4 +15,5 @@ public:
 	virtual void initV();
 	virtual void updateV();
 private:
+	GLuint m_FBO;
 };

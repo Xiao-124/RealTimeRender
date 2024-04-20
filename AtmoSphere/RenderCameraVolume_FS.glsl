@@ -4,7 +4,7 @@
 #define saturate(x)        clamp(x, 0.0, 1.0) 
 #define PI 3.141592653
 #define PLANET_RADIUS_OFFSET 0.01f
-#define MULTISCATAPPROX_ENABLED 1
+#define MULTISCATAPPROX_ENABLED 0
 #define AP_SLICE_COUNT 32.0f
 #define AP_KM_PER_SLICE 4.0f
 

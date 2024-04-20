@@ -154,6 +154,10 @@ void CLightProbePass::initV()
 
 	ElayGraphics::ResourceManager::registerSharedData("BakeResolution", m_BakeResolution);
 	ElayGraphics::ResourceManager::registerSharedData("step_probe", step_probe);
+	ElayGraphics::ResourceManager::registerSharedData("TextureSamplePosition", TextureSamplePosition);
+	ElayGraphics::ResourceManager::registerSharedData("TextureSampleAlbedo", TextureSampleAlbedo);
+	ElayGraphics::ResourceManager::registerSharedData("TextureSampleNormal", TextureSampleNormal);
+	ElayGraphics::ResourceManager::registerSharedData("TextureSampleChebyshev", TextureSampleChebyshev);
 
 	m_pShader->activeShader();
 	m_pShader->setMat4UniformValue("u_ModelMatrix", glm::value_ptr(m_pSponza->getModelMatrix()));

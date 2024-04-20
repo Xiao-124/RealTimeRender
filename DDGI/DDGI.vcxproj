@@ -168,11 +168,12 @@
     <None Include="ProbeDebug_VS.glsl" />
     <None Include="ProbeSphere_FS.glsl" />
     <None Include="ProbeSphere_VS.glsl" />
+    <None Include="ReLight_FS.glsl" />
+    <None Include="ReLight_VS.glsl" />
     <None Include="RSMBuffer_FS.glsl" />
     <None Include="RSMBuffer_VS.glsl" />
     <None Include="ScreenQuad_FS.glsl" />
     <None Include="ScreenQuad_VS.glsl" />
-    <None Include="SurfelLight_CS.glsl" />
     <None Include="SurfelSample_CS.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

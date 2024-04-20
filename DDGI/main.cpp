@@ -20,14 +20,10 @@ int main()
 	ElayGraphics::ResourceManager::registerGameObject(std::make_shared<CSponza>("Sponza", 1));
 	ElayGraphics::ResourceManager::registerGameObject(std::make_shared<CLightCamera>("LightCamera", 2));
 	ElayGraphics::ResourceManager::registerRenderPass(std::make_shared<CLightProbePass>("LightProbePass", 0, ElayGraphics::ERenderPassType::RenderPassType_Once));
-	//ElayGraphics::ResourceManager::registerRenderPass(std::make_shared<GBufferPass>("SponzaGBufferPass", 0));
-	//ElayGraphics::ResourceManager::registerRenderPass(std::make_shared<CShadowMapPass>("ShadowMapPass", 1));
-	//ElayGraphics::ResourceManager::registerRenderPass(std::make_shared<CDirectLightPass>("DirectLightPass", 2));	
-	//ElayGraphics::ResourceManager::registerRenderPass(std::make_shared<CReLightProbePass>("ReLightProbePass", 3));
-	//ElayGraphics::ResourceManager::registerRenderPass(std::make_shared<CIndirectLightPass>("IndirectLightPass", 4));
-	//ElayGraphics::ResourceManager::registerRenderPass(std::make_shared<CScreenQuadPass>("ScreenQuadPass", 5));
-	//
-	//ElayGraphics::ResourceManager::registerRenderPass(std::make_shared<CProbeDebugPass>("ProbeDebugPass", 6));
+	ElayGraphics::ResourceManager::registerRenderPass(std::make_shared<CShadowMapPass>("ShadowMapPass", 1));
+	ElayGraphics::ResourceManager::registerRenderPass(std::make_shared<CReLightProbePass>("ReLightProbePass", 2));
+	
+
 
 	ElayGraphics::ResourceManager::registerSubGUI(std::make_shared<CCustomGUI>("CustomGUI", 1));
 	ElayGraphics::App::initApp();
