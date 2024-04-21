@@ -6,7 +6,7 @@
 - VXGI
 - LPV
 - PRT
-- HiZ剔除
+- HiZ剔除   
 **项目配置**    
 (使用的FRAME框架为https://github.com/AngelMonica126/GraphicAlgorithm)   
 下载GraphicSDK https://pan.baidu.com/s/1XjYGrGhCO_KSqL7pCUzBrA 密码: 1234 ，然后将其解压即可   
