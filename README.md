@@ -15,7 +15,7 @@
 
 **效果图**    
 ***LTC面光源***    
-![LTC面光源](./image/areaLight.JPG "LTC面光源")
+![LTC面光源](./image/areaLight.JPG "LTC面光源")    
 ***泛光效果***    
 ![泛光效果](./image/bloom.JPG "泛光效果")  
 ***大气散射***    
