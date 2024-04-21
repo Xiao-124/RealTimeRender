@@ -13,5 +13,59 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Shader">
+      <UniqueIdentifier>{a713b868-435a-445f-8644-eefb4184703e}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Sponza.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="GBufferPass.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="HizPass.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="ScreenSpacePass.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Sponza.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="GBufferPass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="HizPass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ScreenSpacePass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="GBuffer_FS.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="GBuffer_VS.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Hiz_VS.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Hiz_FS.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="ScreenSpace_VS.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="ScreenSpace_FS.glsl">
+      <Filter>Shader</Filter>
+    </None>
   </ItemGroup>
 </Project>

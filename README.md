@@ -29,5 +29,7 @@
 ***LPVGI***    
 ![LPVGI](./image/lpv_open.JPG "LPVGI") 
 ***VXGI***    
-![VXGI](./image/vxgi_open.JPG "VXGI") 
+![VXGI](./image/vxgi_open.JPG "VXGI")    
+***SSR***    
+![SSR](./image/ssr.JPG "SSR") 
 
